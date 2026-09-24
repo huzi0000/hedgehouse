@@ -1,0 +1,22 @@
+[package]
+name = "hedgehouse"
+version = "0.1.0"
+description = "HedgeHouse Core Market Protocol on Solana"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "hedgehouse"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = { version = "0.30.1", features = ["init-if-needed"] }
+anchor-spl = { version = "0.30.1", features = ["mint", "token"] }
+solana-program = "~1.18"
+thiserror = "^1.0"

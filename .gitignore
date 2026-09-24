@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Rust / Anchor build artifacts
+target/
+.anchor/
+test-ledger/
+
+# Build outputs
+dist/
+
+# Environment and sensitive keys
+.env
+.env.*
+*.key
+*.pem
+*id.json
+*-keypair.json
+keypair.json
+
+# Operating System files
+.DS_Store
+Thumbs.db
+Desktop.ini

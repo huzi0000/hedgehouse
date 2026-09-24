@@ -1,0 +1,12 @@
+{
+  "name": "hedgehouse",
+  "version": "0.1.0",
+  "description": "HedgeHouse Phase 0 - Data Feasibility Proof",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types test/run-all.ts",
+    "verify": "node --experimental-strip-types scripts/verify-markets.ts",
+    "resolve": "node --experimental-strip-types scripts/test-resolution.ts"
+  }
+}
