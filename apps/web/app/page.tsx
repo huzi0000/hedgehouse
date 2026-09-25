@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MARKETS_DATA } from '../lib/housing/markets';
 import { PulseTicker } from '../components/PulseTicker';
 import { MarketCard } from '../components/MarketCard';
+import { HeroVideo } from '../components/HeroVideo';
 import { 
   ArrowRight, 
   Database, 
@@ -24,63 +25,71 @@ export default function HomePage() {
       <PulseTicker />
 
       {/* Hero Section */}
-      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 relative">
-        <div className="flex flex-col items-start max-w-3xl space-y-6">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded bg-[#161A18] border border-[#2B322F] text-xs font-mono text-[#10B981]">
-            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-            <span className="font-semibold tracking-wider uppercase text-[#F4F4F0]">GLOBAL HOUSING RISK / SOLANA</span>
+      <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-16 sm:pb-20 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-[53%_47%] gap-8 lg:gap-12 items-center">
+          {/* Left Column: Label, Headline, Paragraph, CTAs */}
+          <div className="flex flex-col items-start space-y-6">
+            {/* Eyebrow */}
+            <div className="inline-flex items-center space-x-2 px-2.5 sm:px-3 py-1 rounded bg-[#161A18] border border-[#2B322F] text-[11px] sm:text-xs font-mono text-[#10B981] max-w-full">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] shrink-0" />
+              <span className="font-semibold tracking-wider uppercase text-[#F4F4F0] truncate">GLOBAL HOUSING RISK / SOLANA</span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-[26px] sm:text-5xl lg:text-[54px] xl:text-6xl font-bold tracking-tight text-[#F4F4F0] leading-[1.14]">
+              Trade the risk<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#34D399]">
+                behind housing markets.
+              </span>
+            </h1>
+
+            {/* Supporting Copy */}
+            <p className="text-sm sm:text-lg text-[#8A918E] leading-relaxed max-w-xl font-sans">
+              Explore housing-market outcomes across major global cities, resolved using predefined official public data sources.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2 font-mono w-full sm:w-auto">
+              <Link
+                href="/markets"
+                className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-[#10B981]/15"
+              >
+                <span>EXPLORE MARKETS</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/data"
+                className="px-5 py-2.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-[#F4F4F0] font-medium text-xs rounded transition-colors flex items-center justify-center space-x-2"
+              >
+                <Database className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>VIEW DATA SOURCES</span>
+              </Link>
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#F4F4F0] leading-[1.12]">
-            Trade the risk<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#34D399]">
-              behind housing markets.
-            </span>
-          </h1>
-
-          {/* Supporting Copy */}
-          <p className="text-base sm:text-lg text-[#8A918E] leading-relaxed max-w-2xl font-sans">
-            Explore housing-market outcomes across major global cities, resolved using predefined official public data sources.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-wrap items-center gap-3 pt-2 font-mono">
-            <Link
-              href="/markets"
-              className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center space-x-2 shadow-lg shadow-[#10B981]/15"
-            >
-              <span>EXPLORE MARKETS</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/data"
-              className="px-5 py-2.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-[#F4F4F0] font-medium text-xs rounded transition-colors flex items-center space-x-2"
-            >
-              <Database className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>VIEW DATA SOURCES</span>
-            </Link>
+          {/* Right Column: Ambient Hero Video */}
+          <div className="w-full flex justify-center lg:justify-end">
+            <HeroVideo />
           </div>
+        </div>
 
-          {/* Data Credibility Metric Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full pt-8 border-t border-[#222725] font-mono">
-            <div>
-              <span className="text-[11px] text-[#565E5A] block uppercase">Official Providers</span>
-              <span className="text-lg font-bold text-[#F4F4F0]">4 Sovereign</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#565E5A] block uppercase">Settlement Mechanism</span>
-              <span className="text-lg font-bold text-[#10B981]">Deterministic</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#565E5A] block uppercase">Subjective Voting</span>
-              <span className="text-lg font-bold text-[#8A918E]">0.0% Discretion</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-[#565E5A] block uppercase">Target Network</span>
-              <span className="text-lg font-bold text-[#F4F4F0]">Solana Mainnet</span>
-            </div>
+        {/* Data Credibility Metric Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full pt-8 sm:pt-10 mt-10 sm:mt-12 border-t border-[#222725] font-mono">
+          <div>
+            <span className="text-[11px] text-[#565E5A] block uppercase">Official Providers</span>
+            <span className="text-lg font-bold text-[#F4F4F0]">4 Sovereign</span>
+          </div>
+          <div>
+            <span className="text-[11px] text-[#565E5A] block uppercase">Settlement Mechanism</span>
+            <span className="text-lg font-bold text-[#10B981]">Deterministic</span>
+          </div>
+          <div>
+            <span className="text-[11px] text-[#565E5A] block uppercase">Subjective Voting</span>
+            <span className="text-lg font-bold text-[#8A918E]">0.0% Discretion</span>
+          </div>
+          <div>
+            <span className="text-[11px] text-[#565E5A] block uppercase">Target Network</span>
+            <span className="text-lg font-bold text-[#F4F4F0]">Solana Mainnet</span>
           </div>
         </div>
       </section>
