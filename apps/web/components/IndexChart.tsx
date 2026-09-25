@@ -8,21 +8,26 @@ interface IndexChartProps {
   unit: string;
   baselinePeriod: string;
   baselineValue: number;
+  targetPeriod?: string;
 }
 
-export function IndexChart({ series, unit, baselinePeriod, baselineValue }: IndexChartProps) {
+export function IndexChart({ series, unit, baselinePeriod, baselineValue, targetPeriod }: IndexChartProps) {
   const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null);
 
   if (!series || series.length === 0) {
-    return <div className="p-8 text-center text-xs font-mono text-[#8A918E]">No series data available</div>;
+    return (
+      <div className="p-8 text-center text-xs font-mono text-[#8A918E] bg-[#121514] border border-[#222725] rounded-lg">
+        Data temporarily unavailable from sovereign registry
+      </div>
+    );
   }
 
-  // Dimensions
+  // Chart dimensions
   const width = 800;
   const height = 300;
-  const paddingLeft = 60;
-  const paddingRight = 40;
-  const paddingTop = 25;
+  const paddingLeft = 65;
+  const paddingRight = 45;
+  const paddingTop = 30;
   const paddingBottom = 45;
 
   const chartWidth = width - paddingLeft - paddingRight;
@@ -33,8 +38,8 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
   const rawMin = Math.min(...values, baselineValue);
   const rawMax = Math.max(...values, baselineValue);
   const range = rawMax - rawMin || 1;
-  const yMin = rawMin - range * 0.08;
-  const yMax = rawMax + range * 0.08;
+  const yMin = rawMin - range * 0.1;
+  const yMax = rawMax + range * 0.1;
 
   // Scales
   const getX = (index: number) => paddingLeft + (index / (series.length - 1)) * chartWidth;
@@ -60,20 +65,37 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
 
   return (
     <div className="w-full bg-[#121514] border border-[#222725] rounded-lg p-4 sm:p-6 font-mono">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222725] gap-2 mb-4">
+      {/* Chart Title Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222725] gap-3 mb-4">
         <div>
-          <span className="text-[10px] text-[#565E5A] uppercase tracking-wider block">Official Underlying Index Series</span>
-          <span className="text-xs text-[#F4F4F0] font-semibold">{unit}</span>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold text-[#F4F4F0] uppercase tracking-wider">
+              UNDERLYING HOUSING INDEX
+            </span>
+            <span className="text-[10px] text-[#10B981] bg-[#10B981]/10 px-1.5 py-0.2 rounded border border-[#10B981]/20">
+              OFFICIAL BUREAU SERIES
+            </span>
+          </div>
+          <span className="text-[11px] text-[#8A918E] block mt-0.5">
+            Unit: {unit} • Real Historical Observations
+          </span>
         </div>
-        <div className="flex items-center space-x-4 text-xs">
+
+        <div className="flex flex-wrap items-center gap-3 text-xs">
           <div className="flex items-center space-x-1.5">
             <span className="w-2.5 h-0.5 bg-[#10B981]" />
-            <span className="text-[11px] text-[#8A918E]">Historical Observations</span>
+            <span className="text-[11px] text-[#8A918E]">Official Observations</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-0.5 bg-amber-400/80 border-t border-dashed" />
+            <span className="w-2.5 h-0.5 bg-amber-400 border-t border-dashed" />
             <span className="text-[11px] text-amber-400">Baseline ({baselinePeriod})</span>
           </div>
+          {targetPeriod && (
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full border border-dashed border-[#10B981]" />
+              <span className="text-[11px] text-[#10B981]">Target ({targetPeriod})</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -85,13 +107,13 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
           preserveAspectRatio="none"
         >
           <defs>
-            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.25" />
+            <linearGradient id="indexChartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
               <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
+          {/* Grid lines & Y-axis labels */}
           {yTicks.map((tick, idx) => (
             <g key={idx}>
               <line
@@ -99,12 +121,12 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
                 y1={tick.y}
                 x2={width - paddingRight}
                 y2={tick.y}
-                stroke="#1B201E"
+                stroke="#1E2321"
                 strokeWidth="1"
                 strokeDasharray="3 3"
               />
               <text
-                x={paddingLeft - 8}
+                x={paddingLeft - 10}
                 y={tick.y + 3}
                 fill="#565E5A"
                 fontSize="10"
@@ -124,13 +146,13 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
             stroke="#F59E0B"
             strokeWidth="1.5"
             strokeDasharray="4 4"
-            opacity="0.75"
+            opacity="0.8"
           />
 
           {/* Area gradient under line */}
-          <polygon points={areaPoints} fill="url(#chartGradient)" />
+          <polygon points={areaPoints} fill="url(#indexChartGradient)" />
 
-          {/* Main Line */}
+          {/* Main Historical Line */}
           <polyline
             fill="none"
             stroke="#10B981"
@@ -161,16 +183,14 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
             );
           })}
 
-          {/* X-axis labels (sampled for readability) */}
+          {/* X-axis labels */}
           {series.map((d, i) => {
-            // Show every 2nd or 3rd label on small datasets, or first/last + middle
-            const shouldShow =
-              i === 0 ||
-              i === series.length - 1 ||
-              i === Math.floor(series.length / 2) ||
-              d.period === baselinePeriod;
+            const isFirst = i === 0;
+            const isLast = i === series.length - 1;
+            const isMid = i === Math.floor(series.length / 2);
+            const isBaseline = d.period === baselinePeriod;
 
-            if (!shouldShow) return null;
+            if (!isFirst && !isLast && !isMid && !isBaseline) return null;
 
             return (
               <text
@@ -188,23 +208,23 @@ export function IndexChart({ series, unit, baselinePeriod, baselineValue }: Inde
           })}
         </svg>
 
-        {/* Hover / Point Details Tooltip */}
+        {/* Hover / Tooltip Detail */}
         {hoveredPoint && (
-          <div className="absolute top-2 right-2 bg-[#1B201E] border border-[#2B322F] rounded p-2 text-xs shadow-lg animate-in fade-in duration-100">
+          <div className="absolute top-2 right-2 bg-[#1B201E] border border-[#2B322F] rounded p-2.5 text-xs shadow-xl animate-in fade-in duration-100">
             <div className="text-[10px] text-[#565E5A]">Period: {hoveredPoint.period}</div>
-            <div className="text-[#F4F4F0] font-semibold">
-              Index Value: <span className="text-[#10B981]">{hoveredPoint.formatted}</span>
+            <div className="text-[#F4F4F0] font-semibold mt-0.5">
+              Official Observation: <span className="text-[#10B981] font-tabular">{hoveredPoint.formatted}</span>
             </div>
             {hoveredPoint.period === baselinePeriod && (
-              <div className="text-[10px] text-amber-400 mt-0.5">★ Contract Baseline Benchmark</div>
+              <div className="text-[10px] text-amber-400 mt-1 font-medium">★ Contract Baseline Level</div>
             )}
           </div>
         )}
       </div>
 
       <div className="mt-4 pt-3 border-t border-[#1D2220] flex flex-wrap items-center justify-between text-[11px] text-[#565E5A]">
-        <div>Source: Sovereign Statistical Bureau (Phase 0 Direct Ingestion)</div>
-        <div>Total Verified Series Points: {series.length}</div>
+        <div>Data Authority: Sovereign National Statistical Agency</div>
+        <div>Verified Time Series Observations: {series.length}</div>
       </div>
     </div>
   );

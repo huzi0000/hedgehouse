@@ -1,6 +1,6 @@
 export type CountryCode = 'US' | 'GB' | 'SG' | 'AU';
 export type Frequency = 'monthly' | 'quarterly' | 'annual';
-export type MarketStatus = 'ACTIVE' | 'RESOLVING_SOON' | 'SETTLED' | 'UPCOMING';
+export type MarketStatus = 'COMING ON-CHAIN' | 'AWAITING DEPLOYMENT' | 'SETTLED' | 'ACTIVE';
 export type ResolutionCondition = 'TARGET_LT_BASELINE' | 'TARGET_GT_BASELINE' | 'YOY_CHANGE_GT' | 'YOY_CHANGE_LT';
 
 export interface DataPoint {
@@ -10,26 +10,26 @@ export interface DataPoint {
 }
 
 export interface MarketItem {
-  id: string; // e.g. "mia-fhfa-2027q2-lt-2026q2"
-  ticker: string; // e.g. "MIA-27Q2-DECLINE"
-  title: string; // e.g. "Will Miami House Prices Decline YoY by Q2 2027?"
+  id: string;
+  ticker: string;
+  title: string;
   city: string;
   country: string;
   countryCode: CountryCode;
-  coordinates: string; // e.g. "25.7617° N, 80.1918° W"
-  provider: string; // e.g. "FHFA"
-  providerFullName: string; // "Federal Housing Finance Agency"
+  coordinates: string;
+  provider: string;
+  providerFullName: string;
   seriesName: string;
   frequency: Frequency;
-  baselinePeriod: string; // e.g. "2026-Q2"
+  baselinePeriod: string;
   baselineValue: number;
-  targetPeriod: string; // e.g. "2027-Q2"
+  targetPeriod: string;
   targetThreshold?: number;
   condition: ResolutionCondition;
-  ruleFormula: string; // e.g. "FHFA(2027-Q2) < FHFA(2026-Q2)"
+  ruleFormula: string;
   unit: string;
   status: MarketStatus;
-  resolutionDate: string; // Expected release date e.g. "Aug 2027"
+  resolutionDate: string;
   officialSourceUrl: string;
   verificationStatus: 'PASS' | 'PENDING';
   historicalSeries: DataPoint[];

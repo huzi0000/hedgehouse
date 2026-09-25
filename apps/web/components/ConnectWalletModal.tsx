@@ -14,7 +14,7 @@ export function ConnectWalletModal({ isOpen, onClose }: ConnectWalletModalProps)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-md bg-[#121514] border border-[#2B322F] rounded-lg shadow-2xl p-6 relative text-[#F4F4F0]"
+        className="w-full max-w-md bg-[#121514] border border-[#2B322F] rounded-lg shadow-2xl p-6 relative text-[#F4F4F0] font-mono"
         role="dialog"
         aria-modal="true"
       >
@@ -31,40 +31,40 @@ export function ConnectWalletModal({ isOpen, onClose }: ConnectWalletModalProps)
             <Cpu className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-[#F4F4F0]">Solana Devnet Wallet</h3>
-            <p className="text-xs text-[#8A918E] font-mono">NETWORK: DEVNET (CLUSTER ID: LOCAL/DEVNET)</p>
+            <h3 className="text-base font-semibold text-[#F4F4F0]">Connect Solana Wallet</h3>
+            <p className="text-[11px] text-[#8A918E]">TARGET CLUSTER: SOLANA MAINNET</p>
           </div>
         </div>
 
         <div className="bg-[#161A18] border border-[#222725] rounded p-4 mb-5 space-y-2">
-          <div className="flex items-center space-x-2 text-xs font-mono text-[#10B981]">
+          <div className="flex items-center space-x-2 text-xs text-[#10B981]">
             <Terminal className="w-3.5 h-3.5" />
-            <span>PHASE STATUS: PROTOCOL INVARIANT STAGE</span>
+            <span className="font-semibold">AWAITING PROTOCOL DEPLOYMENT</span>
           </div>
           <p className="text-xs text-[#8A918E] leading-relaxed">
-            The HedgeHouse Anchor program (`programs/hedgehouse`) implements SPL collateral vaults and matched-pair YES/NO position mints. Active on-chain transaction submission is scheduled for Phase 3 on Solana Devnet.
+            HedgeHouse official housing-data pipelines are live. On-chain market collateral vaults and YES/NO SPL token minting will activate upon Solana Mainnet protocol deployment.
           </p>
         </div>
 
         <div className="space-y-2.5 mb-6">
           <div className="p-3 rounded border border-[#222725] bg-[#161A18]/60 flex items-center justify-between">
-            <span className="text-sm font-medium text-[#F4F4F0]">Phantom (Devnet)</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Phase 3 Adapter</span>
+            <span className="text-xs font-medium text-[#F4F4F0]">Phantom</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Mainnet Adapter</span>
           </div>
           <div className="p-3 rounded border border-[#222725] bg-[#161A18]/60 flex items-center justify-between">
-            <span className="text-sm font-medium text-[#F4F4F0]">Solflare (Devnet)</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Phase 3 Adapter</span>
+            <span className="text-xs font-medium text-[#F4F4F0]">Solflare</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Mainnet Adapter</span>
           </div>
           <div className="p-3 rounded border border-[#222725] bg-[#161A18]/60 flex items-center justify-between">
-            <span className="text-sm font-medium text-[#F4F4F0]">Backpack (Devnet)</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Phase 3 Adapter</span>
+            <span className="text-xs font-medium text-[#F4F4F0]">Backpack</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#222725] text-[#8A918E]">Mainnet Adapter</span>
           </div>
         </div>
 
         <div className="border-t border-[#222725] pt-4 flex items-center justify-between text-xs text-[#8A918E]">
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-1.5 text-[11px]">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-            <span>Non-custodial test environment</span>
+            <span>Non-custodial architecture</span>
           </div>
           <button
             onClick={onClose}

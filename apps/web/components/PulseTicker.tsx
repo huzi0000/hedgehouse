@@ -1,72 +1,73 @@
 import React from 'react';
 import Link from 'next/link';
-import { TrendingUp, TrendingDown, ShieldCheck, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { getRegionVerification } from '../lib/housing/cache';
 
-interface PulseItem {
+interface PulseCityConfig {
+  key: string;
   city: string;
   country: string;
-  provider: string;
-  period: string;
-  value: string;
-  change: string;
-  isPositive: boolean;
   marketId: string;
+  unit: string;
 }
 
-const PULSE_DATA: PulseItem[] = [
+const CITIES: PulseCityConfig[] = [
   {
+    key: 'miami',
     city: 'Miami',
     country: 'USA',
-    provider: 'FHFA',
-    period: '2026-Q2',
-    value: '666.21',
-    change: '-0.65%',
-    isPositive: false,
-    marketId: 'mia-fhfa-2027q2-lt-2026q2',
+    marketId: 'miami-fhfa-2027q2-decline',
+    unit: 'pts',
   },
   {
+    key: 'london',
     city: 'London',
     country: 'UK',
-    provider: 'UKHPI',
-    period: '2026-07',
-    value: '96.4 pts',
-    change: '-0.10%',
-    isPositive: false,
-    marketId: 'ldn-ukhpi-202707-gt-3pct',
+    marketId: 'london-ukhpi-202707-growth',
+    unit: 'pts',
   },
   {
+    key: 'singapore',
     city: 'Singapore',
     country: 'SG',
-    provider: 'URA',
-    period: '2026-Q2',
-    value: '219.4 pts',
-    change: '+0.50%',
-    isPositive: true,
-    marketId: 'sg-ura-2027q2-lt-2026q2',
+    marketId: 'singapore-ura-2027q2-rise-2pct',
+    unit: 'pts',
   },
   {
+    key: 'sydney',
     city: 'Sydney',
     country: 'AU',
-    provider: 'ABS',
-    period: '2026-Q2',
-    value: 'A$1,487,600',
-    change: '-4.03%',
-    isPositive: false,
-    marketId: 'syd-abs-2027q2-lt-1450k',
+    marketId: 'sydney-abs-2027q2-exceed-1500k',
+    unit: 'AUD',
   },
 ];
 
 export function PulseTicker() {
+  const items = CITIES.map((c) => {
+    const verif = getRegionVerification(c.key);
+    return {
+      ...c,
+      provider: verif?.provider || 'Official',
+      latestPeriod: verif?.latestPeriod || 'Latest',
+      latestValue: verif
+        ? c.unit === 'AUD'
+          ? `A$${verif.latestValue.toLocaleString()}`
+          : `${verif.latestValue.toLocaleString()} pts`
+        : 'Unavailable',
+      change: verif?.calculatedChange ?? null,
+    };
+  });
+
   return (
-    <div className="w-full border-y border-[#222725] bg-[#0E1110] overflow-x-auto py-2.5 px-4 sm:px-6">
+    <div className="w-full border-y border-[#222725] bg-[#0E1110] overflow-x-auto py-2 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between min-w-[700px] text-xs font-mono">
         <div className="flex items-center space-x-2 text-[#10B981] pr-4 border-r border-[#222725] shrink-0">
           <Activity className="w-3.5 h-3.5 animate-pulse" />
-          <span className="font-semibold text-[11px] tracking-wider uppercase">Live Housing Pulse</span>
+          <span className="font-semibold text-[11px] tracking-wider uppercase">Official Index Data</span>
         </div>
 
         <div className="flex items-center justify-between w-full pl-6 space-x-6">
-          {PULSE_DATA.map((item) => (
+          {items.map((item) => (
             <Link
               key={item.city}
               href={`/market/${item.marketId}`}
@@ -80,22 +81,24 @@ export function PulseTicker() {
               </div>
 
               <div className="flex items-center space-x-1.5">
-                <span className="text-[#8A918E] font-tabular">{item.value}</span>
-                <span className="text-[10px] text-[#565E5A]">({item.period})</span>
+                <span className="text-[#8A918E] font-tabular">{item.latestValue}</span>
+                <span className="text-[10px] text-[#565E5A]">({item.latestPeriod})</span>
               </div>
 
-              <div
-                className={`flex items-center space-x-0.5 text-[11px] font-semibold ${
-                  item.isPositive ? 'text-[#10B981]' : 'text-[#F43F5E]'
-                }`}
-              >
-                {item.isPositive ? (
-                  <TrendingUp className="w-3 h-3" />
-                ) : (
-                  <TrendingDown className="w-3 h-3" />
-                )}
-                <span>{item.change}</span>
-              </div>
+              {typeof item.change === 'number' && (
+                <div
+                  className={`flex items-center space-x-0.5 text-[11px] font-semibold font-tabular ${
+                    item.change >= 0 ? 'text-[#10B981]' : 'text-[#F43F5E]'
+                  }`}
+                >
+                  {item.change >= 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  <span>{item.change >= 0 ? `+${item.change}%` : `${item.change}%`}</span>
+                </div>
+              )}
             </Link>
           ))}
         </div>
