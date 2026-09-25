@@ -9,6 +9,7 @@ test-ledger/
 
 # Build outputs
 dist/
+.next/
 
 # Environment and sensitive keys
 .env
