@@ -1,7 +1,7 @@
+use crate::errors::HedgeHouseError;
+use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount, Transfer};
-use crate::state::*;
-use crate::errors::HedgeHouseError;
 
 #[derive(Accounts)]
 pub struct ClaimWinnings<'info> {
@@ -47,7 +47,7 @@ pub struct ClaimWinnings<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<ClaimWinnings>, amount: u64) -> Result<()> {
+pub fn process_claim_winnings(ctx: Context<ClaimWinnings>, amount: u64) -> Result<()> {
     require!(amount > 0, HedgeHouseError::ZeroAmount);
 
     let market = &mut ctx.accounts.market;
@@ -93,11 +93,7 @@ pub fn handler(ctx: Context<ClaimWinnings>, amount: u64) -> Result<()> {
     // 2. Transfer collateral payout from vault to user (signed by Market PDA)
     let market_id = market.market_id;
     let bump = market.bump;
-    let signer_seeds: &[&[&[u8]]] = &[&[
-        MARKET_SEED,
-        market_id.as_ref(),
-        &[bump],
-    ]];
+    let signer_seeds: &[&[&[u8]]] = &[&[MARKET_SEED, market_id.as_ref(), &[bump]]];
 
     let transfer_ctx = CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),

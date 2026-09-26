@@ -1,7 +1,7 @@
+use crate::errors::HedgeHouseError;
+use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Burn, Mint, Token, TokenAccount, Transfer};
-use crate::state::*;
-use crate::errors::HedgeHouseError;
 
 #[derive(Accounts)]
 pub struct RedeemPair<'info> {
@@ -60,7 +60,7 @@ pub struct RedeemPair<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<RedeemPair>, amount: u64) -> Result<()> {
+pub fn process_redeem_pair(ctx: Context<RedeemPair>, amount: u64) -> Result<()> {
     require!(amount > 0, HedgeHouseError::ZeroAmount);
 
     let market = &mut ctx.accounts.market;
@@ -101,11 +101,7 @@ pub fn handler(ctx: Context<RedeemPair>, amount: u64) -> Result<()> {
     // 3. Return collateral to user from vault (signed by Market PDA)
     let market_id = market.market_id;
     let bump = market.bump;
-    let signer_seeds: &[&[&[u8]]] = &[&[
-        MARKET_SEED,
-        market_id.as_ref(),
-        &[bump],
-    ]];
+    let signer_seeds: &[&[&[u8]]] = &[&[MARKET_SEED, market_id.as_ref(), &[bump]]];
 
     let transfer_ctx = CpiContext::new_with_signer(
         ctx.accounts.token_program.to_account_info(),

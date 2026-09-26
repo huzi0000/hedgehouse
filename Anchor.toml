@@ -5,10 +5,13 @@ seeds = true
 skip-lint = false
 
 [programs.localnet]
-hedgehouse = "HdgHse1111111111111111111111111111111111111"
+hedgehouse = "J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi"
 
 [programs.devnet]
-hedgehouse = "HdgHse1111111111111111111111111111111111111"
+hedgehouse = "J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi"
+
+[programs.mainnet]
+hedgehouse = "J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi"
 
 [registry]
 url = "https://api.apr.dev"

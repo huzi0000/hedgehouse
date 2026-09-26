@@ -1,6 +1,6 @@
-use anchor_lang::prelude::*;
-use crate::state::*;
 use crate::errors::HedgeHouseError;
+use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct ResolveMarket<'info> {
@@ -16,7 +16,7 @@ pub struct ResolveMarket<'info> {
     pub resolver_authority: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<ResolveMarket>, outcome: u8) -> Result<()> {
+pub fn process_resolve_market(ctx: Context<ResolveMarket>, outcome: u8) -> Result<()> {
     let market = &mut ctx.accounts.market;
 
     // Must be currently Open
@@ -40,7 +40,11 @@ pub fn handler(ctx: Context<ResolveMarket>, outcome: u8) -> Result<()> {
     msg!(
         "Market {} resolved to outcome: {} by resolver authority: {}",
         market.key(),
-        if outcome == MarketOutcome::Yes as u8 { "YES" } else { "NO" },
+        if outcome == MarketOutcome::Yes as u8 {
+            "YES"
+        } else {
+            "NO"
+        },
         ctx.accounts.resolver_authority.key()
     );
 

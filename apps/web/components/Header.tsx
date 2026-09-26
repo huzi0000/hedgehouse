@@ -3,13 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, ShieldCheck, Wallet, Menu, X } from 'lucide-react';
+import { Activity, ShieldCheck, Wallet, Menu, X, LogOut, CheckCircle2 } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { ConnectWalletModal } from './ConnectWalletModal';
 
 export function Header() {
   const pathname = usePathname();
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { publicKey, connected, disconnect, connecting } = useWallet();
+  const { setVisible } = useWalletModal();
 
   const navLinks = [
     { href: '/markets', label: 'Markets' },
@@ -67,22 +71,37 @@ export function Header() {
               <span className="text-[#F4F4F0] font-medium">SOLANA / MAINNET</span>
             </div>
 
-            {/* Connect Wallet Button */}
-            <button
-              onClick={() => setIsWalletOpen(true)}
-              className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] hover:border-[#10B981]/40 rounded text-xs font-mono text-[#F4F4F0] transition-colors"
-            >
-              <Wallet className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>Connect Wallet</span>
-            </button>
+            {/* Connect / Disconnect Wallet Button */}
+            {connected && publicKey ? (
+              <button
+                onClick={() => disconnect()}
+                title="Click to disconnect"
+                className="flex items-center space-x-2 px-3 py-1.5 bg-[#161A18] hover:bg-[#1F1717] border border-[#10B981]/60 hover:border-red-500/60 rounded text-xs font-mono text-[#F4F4F0] transition-colors group"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                <span className="font-semibold text-[#10B981]">{publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}</span>
+                <LogOut className="w-3.5 h-3.5 text-[#8A918E] group-hover:text-red-400 transition-colors ml-1" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setVisible(true)}
+                disabled={connecting}
+                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] hover:border-[#10B981]/40 rounded text-xs font-mono text-[#F4F4F0] transition-colors"
+              >
+                <Wallet className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>{connecting ? 'Connecting...' : 'Connect Wallet'}</span>
+              </button>
+            )}
           </div>
 
           {/* Mobile menu toggle */}
           <div className="flex sm:hidden items-center space-x-2">
             <button
-              onClick={() => setIsWalletOpen(true)}
-              className="p-2 bg-[#161A18] border border-[#222725] rounded text-[#10B981]"
-              aria-label="Connect wallet"
+              onClick={() => (connected ? disconnect() : setVisible(true))}
+              className={`p-2 bg-[#161A18] border rounded transition-colors ${
+                connected ? 'border-[#10B981] text-[#10B981]' : 'border-[#222725] text-[#10B981]'
+              }`}
+              aria-label={connected ? 'Disconnect wallet' : 'Connect wallet'}
             >
               <Wallet className="w-4 h-4" />
             </button>

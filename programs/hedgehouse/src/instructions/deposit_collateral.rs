@@ -1,7 +1,7 @@
+use crate::errors::HedgeHouseError;
+use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer};
-use crate::state::*;
-use crate::errors::HedgeHouseError;
 
 #[derive(Accounts)]
 pub struct DepositCollateral<'info> {
@@ -63,7 +63,7 @@ pub struct DepositCollateral<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<DepositCollateral>, amount: u64) -> Result<()> {
+pub fn process_deposit_collateral(ctx: Context<DepositCollateral>, amount: u64) -> Result<()> {
     require!(amount > 0, HedgeHouseError::ZeroAmount);
 
     let market = &mut ctx.accounts.market;
@@ -88,11 +88,7 @@ pub fn handler(ctx: Context<DepositCollateral>, amount: u64) -> Result<()> {
     // 2. Mint matched pair: 1 YES and 1 NO per unit of collateral deposited
     let market_id = market.market_id;
     let bump = market.bump;
-    let signer_seeds: &[&[&[u8]]] = &[&[
-        MARKET_SEED,
-        market_id.as_ref(),
-        &[bump],
-    ]];
+    let signer_seeds: &[&[&[u8]]] = &[&[MARKET_SEED, market_id.as_ref(), &[bump]]];
 
     // Mint YES tokens
     let mint_yes_ctx = CpiContext::new_with_signer(

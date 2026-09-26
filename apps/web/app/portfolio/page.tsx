@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ConnectWalletModal } from '../../components/ConnectWalletModal';
+import React, { useState, useEffect } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { 
   Wallet, 
   ShieldCheck, 
@@ -9,12 +11,58 @@ import {
   Lock, 
   Cpu, 
   Terminal, 
-  Info 
+  Info,
+  ExternalLink,
+  Copy,
+  CheckCircle2,
+  RefreshCw,
+  LogOut
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PortfolioPage() {
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const { publicKey, connected, disconnect, connecting } = useWallet();
+  const { connection } = useConnection();
+  const { setVisible } = useWalletModal();
+
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!connected || !publicKey || !connection) {
+      setSolBalance(null);
+      return;
+    }
+
+    let isMounted = true;
+    setIsLoadingBalance(true);
+
+    connection.getBalance(publicKey)
+      .then((lamports) => {
+        if (isMounted) {
+          setSolBalance(lamports / LAMPORTS_PER_SOL);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch SOL balance:', err);
+        if (isMounted) setSolBalance(null);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingBalance(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [connected, publicKey, connection]);
+
+  const copyAddress = () => {
+    if (!publicKey) return;
+    navigator.clipboard.writeText(publicKey.toBase58());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-mono">
@@ -32,42 +80,123 @@ export default function PortfolioPage() {
         </p>
       </div>
 
-      {/* Disconnected State Container */}
-      <div className="bg-[#121514] border border-[#222725] rounded-xl p-8 sm:p-12 text-center max-w-2xl mx-auto mb-16 space-y-6">
-        <div className="w-16 h-16 rounded-full bg-[#161A18] border border-[#2B322F] flex items-center justify-center mx-auto text-[#10B981]">
-          <Wallet className="w-8 h-8" />
-        </div>
+      {/* Connected State Container */}
+      {connected && publicKey ? (
+        <div className="bg-[#121514] border border-[#2B322F] rounded-xl p-6 sm:p-8 mb-16 space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#222725]">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span className="text-xs text-[#8A918E] uppercase tracking-wider">CONNECTED WALLET</span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[#161A18] border border-[#222725] text-[#10B981]">
+                  SOLANA MAINNET
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 pt-1">
+                <span className="text-sm sm:text-base font-bold text-[#F4F4F0] font-mono break-all">
+                  {publicKey.toBase58()}
+                </span>
+                <button
+                  onClick={copyAddress}
+                  className="p-1 text-[#8A918E] hover:text-[#10B981] transition-colors"
+                  title="Copy Address"
+                >
+                  {copied ? <CheckCircle2 className="w-4 h-4 text-[#10B981]" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
 
-        <div className="space-y-2">
-          <h2 className="text-lg font-bold text-[#F4F4F0] font-sans">
-            Connect a Solana wallet to view your HedgeHouse positions.
-          </h2>
-          <p className="text-xs text-[#8A918E] max-w-md mx-auto leading-relaxed font-sans">
-            Position functionality activates with protocol deployment on Solana Mainnet. No simulated or mock transactions are displayed.
-          </p>
-        </div>
+            <button
+              onClick={() => disconnect()}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#161A18] hover:bg-[#201515] border border-[#2B322F] hover:border-red-500/40 text-xs text-[#8A918E] hover:text-red-400 rounded transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Disconnect</span>
+            </button>
+          </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => setIsWalletModalOpen(true)}
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-[#10B981]/15"
-          >
-            <Wallet className="w-4 h-4" />
-            <span>Connect Solana Wallet</span>
-          </button>
-          <Link
-            href="/markets"
-            className="w-full sm:w-auto px-6 py-2.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-[#F4F4F0] text-xs rounded transition-colors text-center"
-          >
-            Browse Active Markets
-          </Link>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
+              <span className="text-[11px] text-[#8A918E] uppercase">Real SOL Balance</span>
+              <div className="text-lg font-bold text-[#F4F4F0]">
+                {isLoadingBalance ? (
+                  <span className="text-xs text-[#8A918E] flex items-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 animate-spin" /> Querying RPC...
+                  </span>
+                ) : solBalance !== null ? (
+                  `${solBalance.toFixed(4)} SOL`
+                ) : (
+                  '0.0000 SOL'
+                )}
+              </div>
+            </div>
 
-        <div className="pt-4 border-t border-[#1D2220] flex items-center justify-center space-x-2 text-[11px] text-[#565E5A]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-          <span>Target Network: Solana Mainnet • Zero mock balances</span>
+            <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
+              <span className="text-[11px] text-[#8A918E] uppercase">Active Market Positions</span>
+              <div className="text-lg font-bold text-[#F4F4F0]">
+                0
+              </div>
+            </div>
+
+            <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
+              <span className="text-[11px] text-[#8A918E] uppercase">Protocol Execution Status</span>
+              <div className="text-xs font-semibold text-amber-400 flex items-center gap-1.5 pt-1">
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Awaiting Mainnet Deploy</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 rounded border border-[#222725] bg-[#161A18]/40 text-xs text-[#8A918E] flex items-center justify-between">
+            <span>Official public housing pipelines are live. On-chain positions activate upon Solana Mainnet deployment.</span>
+            <Link
+              href="/markets"
+              className="text-[#10B981] hover:underline flex items-center gap-1 ml-4 shrink-0"
+            >
+              <span>Explore Markets</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Disconnected State Container */
+        <div className="bg-[#121514] border border-[#222725] rounded-xl p-8 sm:p-12 text-center max-w-2xl mx-auto mb-16 space-y-6">
+          <div className="w-16 h-16 rounded-full bg-[#161A18] border border-[#2B322F] flex items-center justify-center mx-auto text-[#10B981]">
+            <Wallet className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-lg font-bold text-[#F4F4F0] font-sans">
+              Connect a Solana wallet to view your HedgeHouse positions.
+            </h2>
+            <p className="text-xs text-[#8A918E] max-w-md mx-auto leading-relaxed font-sans">
+              Position functionality activates with protocol deployment on Solana Mainnet. No simulated or mock transactions are displayed.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => setVisible(true)}
+              disabled={connecting}
+              className="w-full sm:w-auto px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-[#10B981]/15"
+            >
+              <Wallet className="w-4 h-4" />
+              <span>{connecting ? 'Connecting...' : 'Connect Solana Wallet'}</span>
+            </button>
+            <Link
+              href="/markets"
+              className="w-full sm:w-auto px-6 py-2.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-[#F4F4F0] text-xs rounded transition-colors text-center"
+            >
+              Browse Active Markets
+            </Link>
+          </div>
+
+          <div className="pt-4 border-t border-[#1D2220] flex items-center justify-center space-x-2 text-[11px] text-[#565E5A]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+            <span>Target Network: Solana Mainnet • Zero mock balances</span>
+          </div>
+        </div>
+      )}
 
       {/* Educational Token Mechanics */}
       <div className="space-y-6">
@@ -115,11 +244,6 @@ export default function PortfolioPage() {
           </div>
         </div>
       </div>
-
-      <ConnectWalletModal
-        isOpen={isWalletModalOpen}
-        onClose={() => setIsWalletModalOpen(false)}
-      />
     </div>
   );
 }

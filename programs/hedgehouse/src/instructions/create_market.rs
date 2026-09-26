@@ -1,7 +1,7 @@
+use crate::errors::HedgeHouseError;
+use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
-use crate::state::*;
-use crate::errors::HedgeHouseError;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
 pub struct CreateMarketParams {
@@ -28,12 +28,12 @@ pub struct CreateMarket<'info> {
         seeds = [MARKET_SEED, params.market_id.as_ref()],
         bump
     )]
-    pub market: Account<'info, Market>,
+    pub market: Box<Account<'info, Market>>,
 
     #[account(mut)]
     pub authority: Signer<'info>,
 
-    pub collateral_mint: Account<'info, Mint>,
+    pub collateral_mint: Box<Account<'info, Mint>>,
 
     #[account(
         init,
@@ -43,7 +43,7 @@ pub struct CreateMarket<'info> {
         token::mint = collateral_mint,
         token::authority = market
     )]
-    pub collateral_vault: Account<'info, TokenAccount>,
+    pub collateral_vault: Box<Account<'info, TokenAccount>>,
 
     #[account(
         init,
@@ -53,7 +53,7 @@ pub struct CreateMarket<'info> {
         mint::decimals = collateral_mint.decimals,
         mint::authority = market
     )]
-    pub yes_mint: Account<'info, Mint>,
+    pub yes_mint: Box<Account<'info, Mint>>,
 
     #[account(
         init,
@@ -63,14 +63,14 @@ pub struct CreateMarket<'info> {
         mint::decimals = collateral_mint.decimals,
         mint::authority = market
     )]
-    pub no_mint: Account<'info, Mint>,
+    pub no_mint: Box<Account<'info, Mint>>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handler(ctx: Context<CreateMarket>, params: CreateMarketParams) -> Result<()> {
+pub fn process_create_market(ctx: Context<CreateMarket>, params: CreateMarketParams) -> Result<()> {
     let clock = Clock::get()?;
 
     // Validation 1: Periods cannot be identical
