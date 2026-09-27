@@ -16,45 +16,45 @@ import {
   Copy,
   CheckCircle2,
   RefreshCw,
-  LogOut
+  LogOut,
+  ArrowRightLeft
 } from 'lucide-react';
 import Link from 'next/link';
+import { 
+  fetchUserBalances, 
+  UserBalances, 
+  MIAMI_MARKET_SPEC,
+  getExplorerAddressUrl 
+} from '../../lib/solana/protocol';
 
 export default function PortfolioPage() {
   const { publicKey, connected, disconnect, connecting } = useWallet();
   const { connection } = useConnection();
   const { setVisible } = useWalletModal();
 
-  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [balances, setBalances] = useState<UserBalances | null>(null);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
+  const loadBalances = async () => {
     if (!connected || !publicKey || !connection) {
-      setSolBalance(null);
+      setBalances(null);
       return;
     }
 
-    let isMounted = true;
     setIsLoadingBalance(true);
+    try {
+      const b = await fetchUserBalances(connection, publicKey);
+      setBalances(b);
+    } catch (err) {
+      console.error('Failed to fetch on-chain balances:', err);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
 
-    connection.getBalance(publicKey)
-      .then((lamports) => {
-        if (isMounted) {
-          setSolBalance(lamports / LAMPORTS_PER_SOL);
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to fetch SOL balance:', err);
-        if (isMounted) setSolBalance(null);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoadingBalance(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+  useEffect(() => {
+    loadBalances();
   }, [connected, publicKey, connection]);
 
   const copyAddress = () => {
@@ -63,6 +63,8 @@ export default function PortfolioPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const hasPosition = balances && (balances.yesTokens > 0 || balances.noTokens > 0);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-mono">
@@ -88,8 +90,8 @@ export default function PortfolioPage() {
               <div className="flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
                 <span className="text-xs text-[#8A918E] uppercase tracking-wider">CONNECTED WALLET</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[#161A18] border border-[#222725] text-[#10B981]">
-                  SOLANA MAINNET
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[#161A18] border border-[#222725] text-[#10B981] font-semibold">
+                  SOLANA DEVNET
                 </span>
               </div>
               <div className="flex items-center space-x-2 pt-1">
@@ -106,25 +108,37 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => disconnect()}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#161A18] hover:bg-[#201515] border border-[#2B322F] hover:border-red-500/40 text-xs text-[#8A918E] hover:text-red-400 rounded transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Disconnect</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={loadBalances}
+                disabled={isLoadingBalance}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-xs text-[#8A918E] hover:text-[#F4F4F0] rounded transition-colors"
+                title="Refresh Balances"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingBalance ? 'animate-spin' : ''}`} />
+                <span>Sync</span>
+              </button>
+              <button
+                onClick={() => disconnect()}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#161A18] hover:bg-[#201515] border border-[#2B322F] hover:border-red-500/40 text-xs text-[#8A918E] hover:text-red-400 rounded transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Disconnect</span>
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Metric Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
-              <span className="text-[11px] text-[#8A918E] uppercase">Real SOL Balance</span>
+              <span className="text-[11px] text-[#8A918E] uppercase">Devnet SOL</span>
               <div className="text-lg font-bold text-[#F4F4F0]">
                 {isLoadingBalance ? (
                   <span className="text-xs text-[#8A918E] flex items-center gap-1.5">
-                    <RefreshCw className="w-3 h-3 animate-spin" /> Querying RPC...
+                    <RefreshCw className="w-3 h-3 animate-spin" /> Querying...
                   </span>
-                ) : solBalance !== null ? (
-                  `${solBalance.toFixed(4)} SOL`
+                ) : balances !== null ? (
+                  `${balances.sol.toFixed(4)} SOL`
                 ) : (
                   '0.0000 SOL'
                 )}
@@ -132,31 +146,83 @@ export default function PortfolioPage() {
             </div>
 
             <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
-              <span className="text-[11px] text-[#8A918E] uppercase">Active Market Positions</span>
+              <span className="text-[11px] text-[#8A918E] uppercase">TEST USDC</span>
               <div className="text-lg font-bold text-[#F4F4F0]">
-                0
+                {balances !== null ? `${balances.testUsdc.toFixed(2)} testUSDC` : '0.00'}
               </div>
             </div>
 
             <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
-              <span className="text-[11px] text-[#8A918E] uppercase">Protocol Execution Status</span>
-              <div className="text-xs font-semibold text-amber-400 flex items-center gap-1.5 pt-1">
-                <Terminal className="w-3.5 h-3.5" />
-                <span>Awaiting Mainnet Deploy</span>
+              <span className="text-[11px] text-[#8A918E] uppercase">Active Exposure</span>
+              <div className="text-lg font-bold text-[#10B981]">
+                {hasPosition ? '1 Market' : '0 Markets'}
+              </div>
+            </div>
+
+            <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
+              <span className="text-[11px] text-[#8A918E] uppercase">Protocol Execution</span>
+              <div className="text-xs font-semibold text-[#10B981] flex items-center gap-1.5 pt-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Devnet Live</span>
               </div>
             </div>
           </div>
 
-          <div className="p-4 rounded border border-[#222725] bg-[#161A18]/40 text-xs text-[#8A918E] flex items-center justify-between">
-            <span>Official public housing pipelines are live. On-chain positions activate upon Solana Mainnet deployment.</span>
-            <Link
-              href="/markets"
-              className="text-[#10B981] hover:underline flex items-center gap-1 ml-4 shrink-0"
-            >
-              <span>Explore Markets</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-          </div>
+          {/* Active Positions Table or Prompt */}
+          {hasPosition ? (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-[#F4F4F0] uppercase tracking-wider">
+                  Active Market Positions
+                </h3>
+                <span className="text-[11px] text-[#565E5A]">Miami HPI 2027-Q2</span>
+              </div>
+              <div className="bg-[#0B0D0C] border border-[#222725] rounded-lg p-4 space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1A1F1D] pb-3">
+                  <div>
+                    <span className="text-xs font-semibold text-[#F4F4F0]">Miami HPI Decline by Q2 2027</span>
+                    <span className="text-[10px] text-[#565E5A] block">FHFA MSAD 33124 • Baseline: 666.21</span>
+                  </div>
+                  <Link
+                    href="/market/miami-fhfa-2027q2-decline"
+                    className="px-3 py-1.5 bg-[#161A18] hover:bg-[#222725] border border-[#2B322F] text-xs font-semibold text-[#10B981] rounded flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>Manage / Redeem</span>
+                    <ArrowRightLeft className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <span className="text-[#565E5A] block text-[10px] uppercase">YES Tokens:</span>
+                    <span className="font-semibold text-[#10B981]">{balances.yesTokens.toFixed(2)} YES</span>
+                  </div>
+                  <div>
+                    <span className="text-[#565E5A] block text-[10px] uppercase">NO Tokens:</span>
+                    <span className="font-semibold text-[#F43F5E]">{balances.noTokens.toFixed(2)} NO</span>
+                  </div>
+                  <div>
+                    <span className="text-[#565E5A] block text-[10px] uppercase">Matched Pairs:</span>
+                    <span className="font-semibold text-[#F4F4F0]">{Math.min(balances.yesTokens, balances.noTokens).toFixed(2)} Pairs</span>
+                  </div>
+                  <div>
+                    <span className="text-[#565E5A] block text-[10px] uppercase">Status:</span>
+                    <span className="text-[#10B981] font-semibold">Active On-Chain</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded border border-[#222725] bg-[#161A18]/40 text-xs text-[#8A918E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <span>No active positions on Devnet yet. Deposit test collateral in the Miami market to mint matched pairs.</span>
+              <Link
+                href="/market/miami-fhfa-2027q2-decline"
+                className="text-[#10B981] hover:underline flex items-center gap-1 shrink-0"
+              >
+                <span>Go to Miami Market</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         /* Disconnected State Container */
@@ -167,10 +233,10 @@ export default function PortfolioPage() {
 
           <div className="space-y-2">
             <h2 className="text-lg font-bold text-[#F4F4F0] font-sans">
-              Connect a Solana wallet to view your HedgeHouse positions.
+              Connect a Solana Devnet wallet to view your HedgeHouse positions.
             </h2>
             <p className="text-xs text-[#8A918E] max-w-md mx-auto leading-relaxed font-sans">
-              Position functionality activates with protocol deployment on Solana Mainnet. No simulated or mock transactions are displayed.
+              HedgeHouse protocol is deployed and testable on Solana Devnet. Connect your wallet to inspect your on-chain SPL tokens and manage collateral positions.
             </p>
           </div>
 
@@ -181,7 +247,7 @@ export default function PortfolioPage() {
               className="w-full sm:w-auto px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-[#10B981]/15"
             >
               <Wallet className="w-4 h-4" />
-              <span>{connecting ? 'Connecting...' : 'Connect Solana Wallet'}</span>
+              <span>{connecting ? 'Connecting...' : 'Connect Devnet Wallet'}</span>
             </button>
             <Link
               href="/markets"
@@ -193,7 +259,7 @@ export default function PortfolioPage() {
 
           <div className="pt-4 border-t border-[#1D2220] flex items-center justify-center space-x-2 text-[11px] text-[#565E5A]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-            <span>Target Network: Solana Mainnet • Zero mock balances</span>
+            <span>Network: Solana Devnet • Zero mock balances</span>
           </div>
         </div>
       )}

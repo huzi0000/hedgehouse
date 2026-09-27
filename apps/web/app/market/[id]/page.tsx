@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getMarketById } from '../../../lib/housing/markets';
 import { IndexChart } from '../../../components/IndexChart';
+import { DevnetMarketTradingPanel } from '../../../components/DevnetMarketTradingPanel';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -206,67 +207,7 @@ export default function MarketDetailPage({ params }: MarketDetailPageProps) {
         {/* Right Column (YES/NO Position Panel + Source Verification) */}
         <div className="space-y-6">
           {/* YES / NO Position Panel */}
-          <div className="bg-[#121514] border border-[#222725] rounded-lg p-5 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-[#222725]">
-              <span className="text-xs font-bold text-[#F4F4F0] uppercase tracking-wider">
-                Position Interface
-              </span>
-              <span className="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 font-semibold">
-                COMING ON-CHAIN
-              </span>
-            </div>
-
-            {/* Visual Outcome Selection */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedSide('YES')}
-                className={`py-3 px-3 rounded text-xs font-bold transition-all border ${
-                  selectedSide === 'YES'
-                    ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981]'
-                    : 'bg-[#161A18] border-[#222725] text-[#8A918E] hover:text-[#F4F4F0]'
-                }`}
-              >
-                YES
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedSide('NO')}
-                className={`py-3 px-3 rounded text-xs font-bold transition-all border ${
-                  selectedSide === 'NO'
-                    ? 'bg-[#F43F5E]/20 border-[#F43F5E] text-[#F43F5E]'
-                    : 'bg-[#161A18] border-[#222725] text-[#8A918E] hover:text-[#F4F4F0]'
-                }`}
-              >
-                NO
-              </button>
-            </div>
-
-            {/* Amount Denomination Display */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-[#8A918E]">
-                <span>Collateral Asset:</span>
-                <span className="text-[#F4F4F0] font-semibold">USDC</span>
-              </div>
-              <div className="p-3 bg-[#161A18] border border-[#222725] rounded text-xs flex justify-between items-center text-[#8A918E]">
-                <span>Settlement Unit:</span>
-                <span className="font-semibold text-[#F4F4F0]">1.00 USDC / winning token</span>
-              </div>
-            </div>
-
-            {/* Informational Execution Status Button */}
-            <div className="space-y-2 pt-1">
-              <button
-                disabled
-                className="w-full py-3 px-4 rounded bg-[#1B201E] border border-[#2B322F] text-xs text-[#8A918E] font-semibold cursor-not-allowed uppercase tracking-wider"
-              >
-                COMING ON-CHAIN
-              </button>
-              <p className="text-[11px] text-[#565E5A] leading-relaxed text-center font-sans">
-                HedgeHouse market execution will activate after protocol deployment.
-              </p>
-            </div>
-          </div>
+          <DevnetMarketTradingPanel marketId={market.id} />
 
           {/* Source / Verification Panel */}
           <div className="bg-[#121514] border border-[#222725] rounded-lg p-5 space-y-4 text-xs">

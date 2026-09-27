@@ -26,7 +26,7 @@ export function getMarketsData(): MarketItem[] {
       condition: 'TARGET_LT_BASELINE',
       ruleFormula: 'FHFA(2027-Q2) < FHFA(2026-Q2)',
       unit: 'Index Points (Base 100)',
-      status: 'COMING ON-CHAIN',
+      status: 'DEVNET ACTIVE',
       resolutionDate: 'August 2027',
       officialSourceUrl: 'https://www.fhfa.gov/data/hpi',
       verificationStatus: 'PASS',
