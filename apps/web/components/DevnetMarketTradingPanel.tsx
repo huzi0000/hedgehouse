@@ -19,6 +19,8 @@ import {
   buildDepositCollateralTx,
   buildRedeemPairTx,
   MIAMI_MARKET_SPEC,
+  DEVNET_MARKETS_SPEC,
+  MarketSpec,
   HEDGEHOUSE_PROGRAM_ID,
   TEST_USDC_MINT,
   getExplorerTxUrl,
@@ -31,7 +33,7 @@ interface DevnetMarketTradingPanelProps {
 }
 
 export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelProps) {
-  const isMiami = marketId === 'miami-fhfa-2027q2-decline';
+  const marketSpec: MarketSpec | undefined = DEVNET_MARKETS_SPEC[marketId];
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction, connecting } = useWallet();
   const { setVisible } = useWalletModal();
@@ -45,24 +47,24 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
   const [txError, setTxError] = useState<string | null>(null);
 
   const loadBalances = useCallback(async () => {
-    if (!connected || !publicKey || !connection) return;
+    if (!connected || !publicKey || !connection || !marketSpec) return;
     setIsLoadingBalances(true);
     try {
-      const b = await fetchUserBalances(connection, publicKey);
+      const b = await fetchUserBalances(connection, publicKey, marketSpec);
       setBalances(b);
     } catch (e) {
       console.error('Failed to query Devnet balances:', e);
     } finally {
       setIsLoadingBalances(false);
     }
-  }, [connected, publicKey, connection]);
+  }, [connected, publicKey, connection, marketSpec]);
 
   useEffect(() => {
     loadBalances();
   }, [loadBalances]);
 
-  // Non-Miami markets are not yet initialized on-chain
-  if (!isMiami) {
+  // If market is not yet initialized on-chain, display placeholder
+  if (!marketSpec) {
     return (
       <div className="bg-[#121514] border border-[#222725] rounded-lg p-5 space-y-4 text-xs font-mono">
         <div className="flex items-center justify-between pb-3 border-b border-[#222725]">
@@ -122,9 +124,9 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
     try {
       let tx;
       if (mode === 'DEPOSIT') {
-        tx = await buildDepositCollateralTx(connection, publicKey, parsedAmount);
+        tx = await buildDepositCollateralTx(connection, publicKey, parsedAmount, marketSpec);
       } else {
-        tx = await buildRedeemPairTx(connection, publicKey, parsedAmount);
+        tx = await buildRedeemPairTx(connection, publicKey, parsedAmount, marketSpec);
       }
 
       const sig = await sendTransaction(tx, connection);
@@ -395,24 +397,24 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
         <div className="flex justify-between items-center">
           <span>Market PDA:</span>
           <a
-            href={getExplorerAddressUrl(MIAMI_MARKET_SPEC.marketPda.toBase58())}
+            href={getExplorerAddressUrl(marketSpec.marketPda.toBase58())}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#8A918E] hover:text-[#10B981] font-mono flex items-center gap-1"
           >
-            {MIAMI_MARKET_SPEC.marketPda.toBase58().slice(0, 6)}...{MIAMI_MARKET_SPEC.marketPda.toBase58().slice(-4)}
+            {marketSpec.marketPda.toBase58().slice(0, 6)}...{marketSpec.marketPda.toBase58().slice(-4)}
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>
         <div className="flex justify-between items-center">
           <span>Vault PDA:</span>
           <a
-            href={getExplorerAddressUrl(MIAMI_MARKET_SPEC.vaultPda.toBase58())}
+            href={getExplorerAddressUrl(marketSpec.vaultPda.toBase58())}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#8A918E] hover:text-[#10B981] font-mono flex items-center gap-1"
           >
-            {MIAMI_MARKET_SPEC.vaultPda.toBase58().slice(0, 6)}...{MIAMI_MARKET_SPEC.vaultPda.toBase58().slice(-4)}
+            {marketSpec.vaultPda.toBase58().slice(0, 6)}...{marketSpec.vaultPda.toBase58().slice(-4)}
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
         </div>

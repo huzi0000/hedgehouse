@@ -62,7 +62,11 @@ export default function MarketDetailPage({ params }: MarketDetailPageProps) {
             <span className="text-xs text-[#8A918E] bg-[#161A18] px-2 py-0.5 rounded border border-[#222725] uppercase">
               {market.frequency}
             </span>
-            <span className="text-xs font-medium text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded border border-amber-400/20">
+            <span className={`text-xs font-medium px-2.5 py-0.5 rounded border ${
+              market.status === 'DEVNET ACTIVE'
+                ? 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/20'
+                : 'text-amber-400 bg-amber-400/10 border-amber-400/20'
+            }`}>
               {market.status}
             </span>
           </div>

@@ -24,8 +24,12 @@ export function MarketCard({ market }: MarketCardProps) {
           </span>
         </div>
         <div className="flex items-center space-x-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-          <span className="text-[10px] font-medium text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+          <span className={`w-1.5 h-1.5 rounded-full ${market.status === 'DEVNET ACTIVE' ? 'bg-[#10B981]' : 'bg-amber-400'}`} />
+          <span className={`text-[10px] font-medium px-2 py-0.5 rounded border ${
+            market.status === 'DEVNET ACTIVE'
+              ? 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/20'
+              : 'text-amber-400 bg-amber-400/10 border-amber-400/20'
+          }`}>
             {market.status}
           </span>
         </div>

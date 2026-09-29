@@ -1,6 +1,6 @@
 const https = require('https');
 
-function rpcCall(method, params = []) {
+function singleRpcCall(method, params = []) {
   return new Promise((resolve, reject) => {
     const postData = JSON.stringify({
       jsonrpc: '2.0',
@@ -45,12 +45,23 @@ function rpcCall(method, params = []) {
     req.on('error', reject);
     req.on('timeout', () => {
       req.destroy();
-      reject(new Error('RPC request timed out after 10s'));
+      reject(new Error('RPC request timed out after 30s'));
     });
 
     req.write(postData);
     req.end();
   });
+}
+
+async function rpcCall(method, params = [], maxRetries = 5) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await singleRpcCall(method, params);
+    } catch (err) {
+      if (attempt === maxRetries) throw err;
+      await new Promise(r => setTimeout(r, 1500 * attempt));
+    }
+  }
 }
 
 module.exports = { rpcCall };

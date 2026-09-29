@@ -23,7 +23,8 @@ import Link from 'next/link';
 import { 
   fetchUserBalances, 
   UserBalances, 
-  MIAMI_MARKET_SPEC,
+  DEVNET_MARKETS_SPEC,
+  MarketSpec,
   getExplorerAddressUrl 
 } from '../../lib/solana/protocol';
 
@@ -33,19 +34,32 @@ export default function PortfolioPage() {
   const { setVisible } = useWalletModal();
 
   const [balances, setBalances] = useState<UserBalances | null>(null);
+  const [positions, setPositions] = useState<{ spec: MarketSpec; balances: UserBalances }[]>([]);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const loadBalances = async () => {
     if (!connected || !publicKey || !connection) {
       setBalances(null);
+      setPositions([]);
       return;
     }
 
     setIsLoadingBalance(true);
     try {
-      const b = await fetchUserBalances(connection, publicKey);
-      setBalances(b);
+      const activePositions: { spec: MarketSpec; balances: UserBalances }[] = [];
+      let walletBal: UserBalances | null = null;
+
+      for (const spec of Object.values(DEVNET_MARKETS_SPEC)) {
+        const b = await fetchUserBalances(connection, publicKey, spec);
+        if (!walletBal) walletBal = b;
+        if (b.yesTokens > 0 || b.noTokens > 0) {
+          activePositions.push({ spec, balances: b });
+        }
+      }
+
+      setBalances(walletBal);
+      setPositions(activePositions);
     } catch (err) {
       console.error('Failed to fetch on-chain balances:', err);
     } finally {
@@ -169,56 +183,58 @@ export default function PortfolioPage() {
           </div>
 
           {/* Active Positions Table or Prompt */}
-          {hasPosition ? (
-            <div className="space-y-3 pt-2">
+          {positions.length > 0 ? (
+            <div className="space-y-4 pt-2">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-[#F4F4F0] uppercase tracking-wider">
-                  Active Market Positions
+                  Active Market Positions ({positions.length})
                 </h3>
-                <span className="text-[11px] text-[#565E5A]">Miami HPI 2027-Q2</span>
+                <span className="text-[11px] text-[#565E5A]">SOLANA DEVNET</span>
               </div>
-              <div className="bg-[#0B0D0C] border border-[#222725] rounded-lg p-4 space-y-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1A1F1D] pb-3">
-                  <div>
-                    <span className="text-xs font-semibold text-[#F4F4F0]">Miami HPI Decline by Q2 2027</span>
-                    <span className="text-[10px] text-[#565E5A] block">FHFA MSAD 33124 • Baseline: 666.21</span>
+              {positions.map(({ spec, balances: posBal }) => (
+                <div key={spec.id} className="bg-[#0B0D0C] border border-[#222725] rounded-lg p-4 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#1A1F1D] pb-3">
+                    <div>
+                      <span className="text-xs font-semibold text-[#F4F4F0]">{spec.name} Housing Risk Market</span>
+                      <span className="text-[10px] text-[#565E5A] block">{spec.id}</span>
+                    </div>
+                    <Link
+                      href={`/market/${spec.id}`}
+                      className="px-3 py-1.5 bg-[#161A18] hover:bg-[#222725] border border-[#2B322F] text-xs font-semibold text-[#10B981] rounded flex items-center gap-1.5 transition-colors"
+                    >
+                      <span>Manage / Redeem</span>
+                      <ArrowRightLeft className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
-                  <Link
-                    href="/market/miami-fhfa-2027q2-decline"
-                    className="px-3 py-1.5 bg-[#161A18] hover:bg-[#222725] border border-[#2B322F] text-xs font-semibold text-[#10B981] rounded flex items-center gap-1.5 transition-colors"
-                  >
-                    <span>Manage / Redeem</span>
-                    <ArrowRightLeft className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div>
+                      <span className="text-[#565E5A] block text-[10px] uppercase">YES Tokens:</span>
+                      <span className="font-semibold text-[#10B981]">{posBal.yesTokens.toFixed(2)} YES</span>
+                    </div>
+                    <div>
+                      <span className="text-[#565E5A] block text-[10px] uppercase">NO Tokens:</span>
+                      <span className="font-semibold text-[#F43F5E]">{posBal.noTokens.toFixed(2)} NO</span>
+                    </div>
+                    <div>
+                      <span className="text-[#565E5A] block text-[10px] uppercase">Matched Pairs:</span>
+                      <span className="font-semibold text-[#F4F4F0]">{Math.min(posBal.yesTokens, posBal.noTokens).toFixed(2)} Pairs</span>
+                    </div>
+                    <div>
+                      <span className="text-[#565E5A] block text-[10px] uppercase">Status:</span>
+                      <span className="text-[#10B981] font-semibold">Active On-Chain</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div>
-                    <span className="text-[#565E5A] block text-[10px] uppercase">YES Tokens:</span>
-                    <span className="font-semibold text-[#10B981]">{balances.yesTokens.toFixed(2)} YES</span>
-                  </div>
-                  <div>
-                    <span className="text-[#565E5A] block text-[10px] uppercase">NO Tokens:</span>
-                    <span className="font-semibold text-[#F43F5E]">{balances.noTokens.toFixed(2)} NO</span>
-                  </div>
-                  <div>
-                    <span className="text-[#565E5A] block text-[10px] uppercase">Matched Pairs:</span>
-                    <span className="font-semibold text-[#F4F4F0]">{Math.min(balances.yesTokens, balances.noTokens).toFixed(2)} Pairs</span>
-                  </div>
-                  <div>
-                    <span className="text-[#565E5A] block text-[10px] uppercase">Status:</span>
-                    <span className="text-[#10B981] font-semibold">Active On-Chain</span>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           ) : (
             <div className="p-4 rounded border border-[#222725] bg-[#161A18]/40 text-xs text-[#8A918E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <span>No active positions on Devnet yet. Deposit test collateral in the Miami market to mint matched pairs.</span>
+              <span>No active positions on Devnet yet. Deposit test collateral in any active market to mint matched pairs.</span>
               <Link
-                href="/market/miami-fhfa-2027q2-decline"
+                href="/markets"
                 className="text-[#10B981] hover:underline flex items-center gap-1 shrink-0"
               >
-                <span>Go to Miami Market</span>
+                <span>Browse Active Markets</span>
                 <ExternalLink className="w-3 h-3" />
               </Link>
             </div>

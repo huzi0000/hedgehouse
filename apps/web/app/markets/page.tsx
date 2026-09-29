@@ -114,13 +114,13 @@ export default function MarketsPage() {
 
           <div className="flex items-center gap-2">
             <span className="text-[#565E5A]">Status:</span>
-            {['ALL', 'COMING ON-CHAIN'].map((s) => (
+            {['ALL', 'DEVNET ACTIVE'].map((s) => (
               <button
                 key={s}
                 onClick={() => setSelectedStatus(s)}
                 className={`px-2 py-0.5 rounded text-[11px] transition-colors ${
                   selectedStatus === s
-                    ? 'text-amber-400 bg-amber-400/10 border border-amber-400/20 font-medium'
+                    ? 'text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 font-medium'
                     : 'text-[#8A918E] hover:text-[#F4F4F0]'
                 }`}
               >
