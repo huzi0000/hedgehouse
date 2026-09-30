@@ -19,10 +19,8 @@ import path from 'path';
 // In-memory rate limiting: 1 airdrop per recipient every 60 seconds
 const rateLimitMap = new Map<string, number>();
 
-const TESTNET_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.testnet.solana.com';
-const TEST_USDC_MINT = new PublicKey(
-  process.env.NEXT_PUBLIC_TEST_USDC_MINT || '3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg'
-);
+const TESTNET_RPC = 'https://api.testnet.solana.com';
+const TEST_USDC_MINT = new PublicKey('3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg');
 
 function getFaucetKeypair(): Keypair | null {
   // 1. Try environment variable (Vercel production)
