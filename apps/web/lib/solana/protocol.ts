@@ -1,4 +1,4 @@
-import { PublicKey, Transaction, ComputeBudgetProgram, Connection } from '@solana/web3.js';
+import { PublicKey, Transaction, ComputeBudgetProgram, Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import {
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
@@ -9,7 +9,12 @@ import idlJson from './idl.json';
 
 // Deployed Solana Testnet Configuration
 export const SOLANA_CLUSTER = 'testnet';
-export const DEFAULT_RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.testnet.solana.com';
+export const DEFAULT_RPC_URL =
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL &&
+  !process.env.NEXT_PUBLIC_SOLANA_RPC_URL.includes('devnet') &&
+  !process.env.NEXT_PUBLIC_SOLANA_RPC_URL.includes('mainnet')
+    ? process.env.NEXT_PUBLIC_SOLANA_RPC_URL
+    : 'https://api.testnet.solana.com';
 
 // Verified On-Chain Program and Mint IDs
 export const HEDGEHOUSE_PROGRAM_ID = new PublicKey(
@@ -111,26 +116,34 @@ export async function fetchUserBalances(
   let yesTokens = 0;
   let noTokens = 0;
 
+  // Ensure query always executes against Solana Testnet
+  const activeConnection =
+    connection && !connection.rpcEndpoint.includes('devnet') && !connection.rpcEndpoint.includes('mainnet')
+      ? connection
+      : new Connection('https://api.testnet.solana.com', 'confirmed');
+
   try {
-    const lamports = await connection.getBalance(userWallet, 'confirmed');
-    sol = lamports / 1e9;
-  } catch (e) {}
+    const lamports = await activeConnection.getBalance(userWallet, 'confirmed');
+    sol = lamports / LAMPORTS_PER_SOL;
+  } catch (e) {
+    console.error('Failed to query Testnet native SOL balance:', e);
+  }
 
   try {
     const userCollateralAta = getAssociatedTokenAddressSync(TEST_USDC_MINT, userWallet);
-    const bal = await connection.getTokenAccountBalance(userCollateralAta, 'confirmed');
+    const bal = await activeConnection.getTokenAccountBalance(userCollateralAta, 'confirmed');
     testUsdc = Number(bal.value.uiAmountString || 0);
   } catch (e) {}
 
   try {
     const userYesAta = getAssociatedTokenAddressSync(marketSpec.yesMint, userWallet);
-    const bal = await connection.getTokenAccountBalance(userYesAta, 'confirmed');
+    const bal = await activeConnection.getTokenAccountBalance(userYesAta, 'confirmed');
     yesTokens = Number(bal.value.uiAmountString || 0);
   } catch (e) {}
 
   try {
     const userNoAta = getAssociatedTokenAddressSync(marketSpec.noMint, userWallet);
-    const bal = await connection.getTokenAccountBalance(userNoAta, 'confirmed');
+    const bal = await activeConnection.getTokenAccountBalance(userNoAta, 'confirmed');
     noTokens = Number(bal.value.uiAmountString || 0);
   } catch (e) {}
 
@@ -155,7 +168,12 @@ export async function buildDepositCollateralTx(
     signAllTransactions: async (txs: any[]) => txs
   };
 
-  const provider = new AnchorProvider(connection, dummyWallet, {});
+  const activeConnection =
+    connection && !connection.rpcEndpoint.includes('devnet') && !connection.rpcEndpoint.includes('mainnet')
+      ? connection
+      : new Connection('https://api.testnet.solana.com', 'confirmed');
+
+  const provider = new AnchorProvider(activeConnection, dummyWallet, {});
   const program = new Program(idlJson as Idl, provider);
 
   const userCollateralAta = getAssociatedTokenAddressSync(TEST_USDC_MINT, userWallet);
@@ -218,7 +236,12 @@ export async function buildRedeemPairTx(
     signAllTransactions: async (txs: any[]) => txs
   };
 
-  const provider = new AnchorProvider(connection, dummyWallet, {});
+  const activeConnection =
+    connection && !connection.rpcEndpoint.includes('devnet') && !connection.rpcEndpoint.includes('mainnet')
+      ? connection
+      : new Connection('https://api.testnet.solana.com', 'confirmed');
+
+  const provider = new AnchorProvider(activeConnection, dummyWallet, {});
   const program = new Program(idlJson as Idl, provider);
 
   const userCollateralAta = getAssociatedTokenAddressSync(TEST_USDC_MINT, userWallet);

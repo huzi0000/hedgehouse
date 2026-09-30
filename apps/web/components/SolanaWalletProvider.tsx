@@ -12,12 +12,13 @@ interface SolanaWalletProviderProps {
 }
 
 export function SolanaWalletProvider({ children }: SolanaWalletProviderProps) {
-  // Use configured RPC URL from environment or default to official Solana Mainnet Beta
+  // Enforce Solana Testnet RPC endpoint
   const endpoint = useMemo(() => {
-    return (
-      process.env.NEXT_PUBLIC_SOLANA_RPC_URL ||
-      'https://api.testnet.solana.com'
-    );
+    const envRpc = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+    if (envRpc && !envRpc.includes('devnet') && !envRpc.includes('mainnet')) {
+      return envRpc;
+    }
+    return 'https://api.testnet.solana.com';
   }, []);
 
   // Standard wallet adapter: Modern Solana wallets (Phantom, Solflare, Backpack, etc.)
