@@ -45,6 +45,8 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [txSignature, setTxSignature] = useState<string | null>(null);
   const [txError, setTxError] = useState<string | null>(null);
+  const [isClaimingFaucet, setIsClaimingFaucet] = useState<boolean>(false);
+  const [faucetSuccess, setFaucetSuccess] = useState<string | null>(null);
 
   const loadBalances = useCallback(async () => {
     if (!connected || !publicKey || !connection || !marketSpec) return;
@@ -53,11 +55,36 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
       const b = await fetchUserBalances(connection, publicKey, marketSpec);
       setBalances(b);
     } catch (e) {
-      console.error('Failed to query Devnet balances:', e);
+      console.error('Failed to query Testnet balances:', e);
     } finally {
       setIsLoadingBalances(false);
     }
   }, [connected, publicKey, connection, marketSpec]);
+
+  const handleClaimFaucet = async () => {
+    if (!publicKey) return;
+    setIsClaimingFaucet(true);
+    setTxError(null);
+    setFaucetSuccess(null);
+    try {
+      const res = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: publicKey.toBase58() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to claim testUSDC');
+      }
+      setFaucetSuccess('Received 100 testUSDC on Solana Testnet!');
+      await loadBalances();
+      setTimeout(() => setFaucetSuccess(null), 6000);
+    } catch (e: any) {
+      setTxError(e.message || 'Failed to claim testUSDC faucet');
+    } finally {
+      setIsClaimingFaucet(false);
+    }
+  };
 
   useEffect(() => {
     loadBalances();
@@ -104,7 +131,7 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
     }
 
     if (balances && balances.sol < 0.002) {
-      setTxError('Insufficient Devnet SOL for transaction fees. Please fund your wallet via the Solana Devnet faucet.');
+      setTxError('Insufficient Testnet SOL for transaction fees. Please fund your wallet via a Solana Testnet faucet.');
       return;
     }
 
@@ -155,10 +182,10 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
       <div className="flex items-center justify-between pb-3 border-b border-[#222725]">
         <div className="flex items-center space-x-2">
           <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-          <span className="font-bold text-[#F4F4F0] uppercase tracking-wider">Devnet Protocol Execution</span>
+          <span className="font-bold text-[#F4F4F0] uppercase tracking-wider">Testnet Protocol Execution</span>
         </div>
         <span className="text-[10px] text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded border border-[#10B981]/20 font-semibold">
-          SOLANA / DEVNET
+          SOLANA / TESTNET
         </span>
       </div>
 
@@ -198,15 +225,32 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
               <Wallet className="w-3 h-3 text-[#10B981]" />
               Your On-Chain Balances
             </span>
-            <button
-              onClick={loadBalances}
-              disabled={isLoadingBalances}
-              className="text-[#8A918E] hover:text-[#F4F4F0] flex items-center gap-1 text-[10px]"
-            >
-              <RefreshCw className={`w-3 h-3 ${isLoadingBalances ? 'animate-spin' : ''}`} />
-              Sync
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleClaimFaucet}
+                disabled={isClaimingFaucet}
+                className="px-2 py-0.5 text-[10px] bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/30 text-[#10B981] rounded flex items-center gap-1 transition-colors"
+                title="Claim 100 Testnet testUSDC for testing"
+              >
+                <Coins className={`w-3 h-3 ${isClaimingFaucet ? 'animate-spin' : ''}`} />
+                <span>{isClaimingFaucet ? 'Claiming...' : '+100 testUSDC'}</span>
+              </button>
+              <button
+                onClick={loadBalances}
+                disabled={isLoadingBalances}
+                className="text-[#8A918E] hover:text-[#F4F4F0] flex items-center gap-1 text-[10px]"
+              >
+                <RefreshCw className={`w-3 h-3 ${isLoadingBalances ? 'animate-spin' : ''}`} />
+                Sync
+              </button>
+            </div>
           </div>
+          {faucetSuccess && (
+            <div className="p-2 bg-[#10B981]/15 border border-[#10B981]/30 rounded text-[11px] text-[#10B981] flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{faucetSuccess}</span>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>
               <span className="text-[#565E5A] block text-[10px]">TEST USDC:</span>
@@ -215,7 +259,7 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
               </span>
             </div>
             <div>
-              <span className="text-[#565E5A] block text-[10px]">Devnet SOL:</span>
+              <span className="text-[#565E5A] block text-[10px]">Testnet SOL:</span>
               <span className="font-semibold text-[#F4F4F0]">
                 {balances ? `${balances.sol.toFixed(4)} SOL` : '—'}
               </span>
@@ -236,13 +280,13 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
         </div>
       ) : (
         <div className="p-3 bg-[#161A18]/60 border border-[#222725] rounded text-center space-y-2">
-          <p className="text-xs text-[#8A918E]">Connect a Solana Devnet wallet to interact with this market contract.</p>
+          <p className="text-xs text-[#8A918E]">Connect a Solana Testnet wallet to interact with this market contract.</p>
           <button
             onClick={() => setVisible(true)}
             disabled={connecting}
             className="px-4 py-2 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors"
           >
-            {connecting ? 'Connecting...' : 'Connect Devnet Wallet'}
+            {connecting ? 'Connecting...' : 'Connect Testnet Wallet'}
           </button>
         </div>
       )}
@@ -376,7 +420,7 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
           className="w-full py-3 px-4 rounded bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#10B981]/10"
         >
           <Wallet className="w-4 h-4" />
-          <span>Connect Devnet Wallet</span>
+          <span>Connect Testnet Wallet</span>
         </button>
       )}
 

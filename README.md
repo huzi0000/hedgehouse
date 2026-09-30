@@ -14,13 +14,13 @@ HedgeHouse is a decentralized financial infrastructure protocol designed to enab
 | **Phase 0: Deterministic Resolver** | **VERIFIED** | Strict mathematical rule engine and resolution bridge verified with unit tests. |
 | **Phase 1: Smart Contract Source** | **VERIFIED** | Core Anchor Rust program implementing matched-pair collateral vault & SPL mints. |
 | **Phase 1: SBF Bytecode Compilation** | **VERIFIED** | Program compiled to Solana SBF BPF (`target/deploy/hedgehouse.so`, 388,712 bytes). |
-| **Solana Devnet Deployment** | **DEPLOYED & ACTIVE** | Executable on Solana Devnet (`J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi`). |
-| **Test Collateral Mint** | **INITIALIZED** | Dedicated 6-decimal testUSDC (`C3nYr1kLuTPN3Pvbc4DD8rvzAwVNHovNKyHpVKU4d3dv`). |
-| **Miami FHFA Devnet Market** | **LIVE ON-CHAIN** | Initialized market PDA (`psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg`). |
-| **On-Chain Protocol Flow** | **VERIFIED** | Deposit, pair redemption, and resolver constraint enforcement verified on-chain. |
-| **Phase 2 & 2.1: Frontend UI & Hero** | **VERIFIED** | Production Next.js 14 frontend with interactive Devnet trading panel & portfolio. |
-| **Phase 3: Solana Wallet Integration** | **VERIFIED** | Solana Wallet Adapter configured for Devnet with interactive on-chain signing. |
-| **Security Audit** | **NOT AUDITED** | Non-production devnet research build. Never deploy to Mainnet without audit. |
+| **Solana Testnet Deployment** | **DEPLOYED & ACTIVE** | Executable on Solana Testnet (`J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi`). |
+| **Test Collateral Mint** | **INITIALIZED** | Dedicated 6-decimal Testnet testUSDC (`3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg`). |
+| **All 4 Testnet Markets** | **LIVE ON-CHAIN** | Initialized Miami, London, Singapore, Sydney with real PDAs on Testnet. |
+| **On-Chain Protocol Flow** | **VERIFIED** | Deposit, pair redemption, and permissionless user flows verified on Testnet. |
+| **Phase 2 & 2.1: Frontend UI & Hero** | **VERIFIED** | Production Next.js 14 frontend configured for Solana Testnet & live portfolio. |
+| **Phase 3: Solana Wallet Integration** | **VERIFIED** | Solana Wallet Adapter configured for Testnet with interactive on-chain signing. |
+| **Security Audit** | **NOT AUDITED** | Non-production testnet demo build. Never deploy to Mainnet without audit. |
 | **Mainnet Program Deployment** | **NOT DEPLOYED** | Hard deployment gate maintained. Zero real SOL or USDC spent. |
 
 ---
@@ -61,29 +61,35 @@ Implemented in Anchor / Rust at `programs/hedgehouse`:
 - **Deterministic Settlement:** Only the designated `resolver_authority` can trigger `resolve_market`, passing the binary outcome derived from official public data.
 - **Winning Claims:** Post-resolution, holders of winning tokens burn them to claim full $1:1$ collateral payouts. Losing tokens are rendered void.
 
-### Solana Devnet Deployment & Verification Registry
+### Solana Testnet Deployment & Verification Registry
 
-The HedgeHouse protocol is deployed and active on Solana Devnet:
+The HedgeHouse protocol is fully deployed and active across all four metropolitan markets on Solana Testnet:
 
 | On-Chain Artifact | Address / Signature | Explorer Link |
 | :--- | :--- | :--- |
-| **Program ID** | `J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi` | [View Program](https://explorer.solana.com/address/J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi?cluster=devnet) |
-| **ProgramData PDA** | `HHejWjk3wCRcUNPxSLAQH5Nw2MRBGX11aaEtLS3QFpB` | [View ProgramData](https://explorer.solana.com/address/HHejWjk3wCRcUNPxSLAQH5Nw2MRBGX11aaEtLS3QFpB?cluster=devnet) |
-| **Deploy Transaction** | `3cfoq5mYcTZzkmCBxVLvKvV6uz5vnZACehmoH2nbmqrjQnnXDBHCVDEJEkgfvYBY8Mm1vk4aM4xvD1mjx5WHMk6U` | [View Deploy Tx](https://explorer.solana.com/tx/3cfoq5mYcTZzkmCBxVLvKvV6uz5vnZACehmoH2nbmqrjQnnXDBHCVDEJEkgfvYBY8Mm1vk4aM4xvD1mjx5WHMk6U?cluster=devnet) |
-| **Test Collateral Mint** | `C3nYr1kLuTPN3Pvbc4DD8rvzAwVNHovNKyHpVKU4d3dv` | [View Mint](https://explorer.solana.com/address/C3nYr1kLuTPN3Pvbc4DD8rvzAwVNHovNKyHpVKU4d3dv?cluster=devnet) |
-| **Miami Market PDA** | `psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg` | [View Market PDA](https://explorer.solana.com/address/psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg?cluster=devnet) |
-| **Collateral Vault PDA** | `7ZBYv5JzC5gzf6Vr7Cw3kSubPguTrZixpv9TuWxqV6pW` | [View Vault PDA](https://explorer.solana.com/address/7ZBYv5JzC5gzf6Vr7Cw3kSubPguTrZixpv9TuWxqV6pW?cluster=devnet) |
-| **YES Mint PDA** | `26BGWvo49nvPaKP3V5bVcT65TPChPrKCh1M469722mj7` | [View YES Mint](https://explorer.solana.com/address/26BGWvo49nvPaKP3V5bVcT65TPChPrKCh1M469722mj7?cluster=devnet) |
-| **NO Mint PDA** | `9gK6Y2wqSzK8Rh926PWgYdCBP5AwDSiXN7bAqnTKrRH5` | [View NO Mint](https://explorer.solana.com/address/9gK6Y2wqSzK8Rh926PWgYdCBP5AwDSiXN7bAqnTKrRH5?cluster=devnet) |
-| **Create Market Tx** | `RxV9CiNGpGi3GcENGaeEneMeFcE9DWaWS9yk45njqWQTLnS6ab2hdtTGtNDLXgLvHPTUPC85FMBWE1JK5v7pDRB` | [View Create Market Tx](https://explorer.solana.com/tx/RxV9CiNGpGi3GcENGaeEneMeFcE9DWaWS9yk45njqWQTLnS6ab2hdtTGtNDLXgLvHPTUPC85FMBWE1JK5v7pDRB?cluster=devnet) |
-| **Deposit Collateral Tx** | `5ZofP3vxSWSyu3McMtaZyibJrAwWf8fipNScJCMWaEMM3dnwQg8R4w9b8SMy8CAmLuF8oHDWdG2sb9wE6cxtfDMC` | [View Deposit Tx](https://explorer.solana.com/tx/5ZofP3vxSWSyu3McMtaZyibJrAwWf8fipNScJCMWaEMM3dnwQg8R4w9b8SMy8CAmLuF8oHDWdG2sb9wE6cxtfDMC?cluster=devnet) |
-| **Redeem Matched Pair Tx**| `5uSdpn4EuskawDq9zKNoT4x6WuQgBx7YXK8f7jefeHiaEVuKWpHN787H9TZWC7jt27LUqwkPh9EmCYyZdeSPg5KG` | [View Redeem Tx](https://explorer.solana.com/tx/5uSdpn4EuskawDq9zKNoT4x6WuQgBx7YXK8f7jefeHiaEVuKWpHN787H9TZWC7jt27LUqwkPh9EmCYyZdeSPg5KG?cluster=devnet) |
-| **Frontend Client Deposit Tx**| `2tBxnNnNSMx7BZvDKhDAEeeJDZekbVDUv1VavLRtx9ocFb9j84NL8FLkW8tN99pKvAM9jHBgFHBEBjk7UZAhP6QG` | [View Frontend Client Tx](https://explorer.solana.com/tx/2tBxnNnNSMx7BZvDKhDAEeeJDZekbVDUv1VavLRtx9ocFb9j84NL8FLkW8tN99pKvAM9jHBgFHBEBjk7UZAhP6QG?cluster=devnet) |
+| **Program ID** | `J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi` | [View Program](https://explorer.solana.com/address/J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi?cluster=testnet) |
+| **ProgramData PDA** | `HHejWjk3wCRcUNPxSLAQH5Nw2MRBGX11aaEtLS3QFpB` | [View ProgramData](https://explorer.solana.com/address/HHejWjk3wCRcUNPxSLAQH5Nw2MRBGX11aaEtLS3QFpB?cluster=testnet) |
+| **Deploy Transaction** | `4HappWdPVEkDinicPyF6xXvHMtcvr3y14Bz4Rfb7TxD3o7EKZFKcYrrXmJcNiNNmJqBha3jhw5EMLccJvwoBNe1d` | [View Deploy Tx](https://explorer.solana.com/tx/4HappWdPVEkDinicPyF6xXvHMtcvr3y14Bz4Rfb7TxD3o7EKZFKcYrrXmJcNiNNmJqBha3jhw5EMLccJvwoBNe1d?cluster=testnet) |
+| **Shared testUSDC Mint** | `3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg` | [View Mint](https://explorer.solana.com/address/3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg?cluster=testnet) |
+| **Miami Market PDA** | `psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg` | [View Miami Market](https://explorer.solana.com/address/psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg?cluster=testnet) |
+| **London Market PDA** | `51cBJsyuBsgBPZJfQMi7NNjZCkuCm3yusbLpVvanCk5d` | [View London Market](https://explorer.solana.com/address/51cBJsyuBsgBPZJfQMi7NNjZCkuCm3yusbLpVvanCk5d?cluster=testnet) |
+| **Singapore Market PDA** | `FJ1m18AjKm2UcU4e7vZv62vE3EAgGbgQkQ1BrGjU5kVG` | [View Singapore Market](https://explorer.solana.com/address/FJ1m18AjKm2UcU4e7vZv62vE3EAgGbgQkQ1BrGjU5kVG?cluster=testnet) |
+| **Sydney Market PDA** | `38RocohSt3rqvJoPuXcUDFMnLx9FF1434BFUaVAUwauy` | [View Sydney Market](https://explorer.solana.com/address/38RocohSt3rqvJoPuXcUDFMnLx9FF1434BFUaVAUwauy?cluster=testnet) |
 
-#### Verified Constraint Enforcements
-- **Pre-Resolution Pair Redemption:** Successfully burned 40.00 YES + 40.00 NO tokens to reclaim 40.00 testUSDC collateral on Devnet (`5uSdpn4...`).
-- **Unauthorized Resolution Rejection:** Attacker `Co1wtnMZWunWY4vsBPgQ7nQEP7VpNySRjJL9hDi5jhhy` attempting unauthorized settlement was strictly rejected on-chain (`Custom: 6005`, `HedgeHouseError::UnauthorizedResolver`, error `0x1775`).
-- **Honest Market State:** The Miami FHFA market evaluates whether `FHFA(2027-Q2) < FHFA(2026-Q2)`. Since official FHFA 2027-Q2 data will not be released until August 2027, the market is maintained in its authentic unfinalized active state.
+#### Verified Real On-Chain Testnet E2E Transactions
+- **Miami Deposit (15 testUSDC):** [`3P3RNeAC...bZNhc`](https://explorer.solana.com/tx/3P3RNeACZe9t3mDgDWpQfPkWhvvUdugW2HfaWe2z1UybXBuNT9bRUuuJZHdzwhSGyummanKUomEFwMV73LebzNhc?cluster=testnet)
+- **Miami Redeem (5 Pairs):** [`25vwgVc1...QBxik8`](https://explorer.solana.com/tx/25vwgVc1Uej9DgEx6nrckYhHcgJEyA5e4Hui6YTicB26UESkQVEbGJx5uzRFqxUSztqwakmGYSGdo7HTyJqBxik8?cluster=testnet)
+- **London Deposit (15 testUSDC):** [`CSEAox1g...TkNsHKq`](https://explorer.solana.com/tx/CSEAox1gWT86kRFTiDooHZ4ypz68UU5STUayhuu7Gu2qU7mTqobaPzd1mK7ct4uomJvoAkyWhVmf5RnwTkNsHKq?cluster=testnet)
+- **London Redeem (5 Pairs):** [`5btBES2S...mnVKu5`](https://explorer.solana.com/tx/5btBES2SfjesQBNtYAoHDsHo5YAQmkgoiCeDVMUDPHy21FvBP8UznHCL9K1dYfvXoC1wKEMKbufMkfGoL7mnVKu5?cluster=testnet)
+- **Singapore Deposit (15 testUSDC):** [`2rxMQtCv...7UY2NL`](https://explorer.solana.com/tx/2rxMQtCvji2FaLek2RoAqfKQxVsDuz2zNnLovQbHZ2nmFxLMysrWcsJzbjb2Y7arJkXZRJN2mwhEycj2aa7UY2NL?cluster=testnet)
+- **Singapore Redeem (5 Pairs):** [`5gnz2agW...ykk4s`](https://explorer.solana.com/tx/5gnz2agW3tfmFxMqrnxGtThBBt4ZD39Co9KqsWW8mEs3kmCBd5YySiegeW6ieoeu5v3QZYGCiDrdJsHQ7GWykk4s?cluster=testnet)
+- **Sydney Deposit (15 testUSDC):** [`2SRnHJBG...RvQSMQB`](https://explorer.solana.com/tx/2SRnHJBGdKsFUY2djQnuSXKXHXToeknHfvG2bVdjfEcMmZjC9Tmo5VdDDfik1CcajHvgD1UtRZt9swk2ARvQSMQB?cluster=testnet)
+- **Sydney Redeem (5 Pairs):** [`g1dZstgx...yuxEeXK`](https://explorer.solana.com/tx/g1dZstgx6nQSaPTe8QTxvKVWSsGTNaeUVjLDFFCNgjpN6VBnLE1kwH2mPpdmSF4dqoNzsdicEwZnoaT5yuxEeXK?cluster=testnet)
+
+#### Permissionless External User Flow Verification
+- **External User Autonomous Deposit (20 testUSDC):** [`mCsJSDZP...AHXyot`](https://explorer.solana.com/tx/mCsJSDZPMPhTe3BU6nGwf8nrb4YMoK77yMzUmznAuMPPYdb3NgFX8HTtPmXGjTBdqZyGi2hvH9xyqdViUAHXyot?cluster=testnet)
+- **External User Autonomous Redeem (10 Pairs):** [`kQDwA8vo...P7nN1s`](https://explorer.solana.com/tx/kQDwA8voW5ZKu6Nn1znxcauw9CwEUeXC538LoutpqntrsRRzbKmUai1zvwGCfAzrSrn6UNKEiTFSLDLfxP7nN1s?cluster=testnet)
+- Verified: Zero admin/authority signer required. Any normal external wallet with Testnet SOL and testUSDC executes transactions autonomously.
 
 ---
 
@@ -92,7 +98,7 @@ The HedgeHouse protocol is deployed and active on Solana Devnet:
 The web application is located in `apps/web`:
 - Built with **Next.js 14**, **Tailwind CSS**, and **Lucide Icons**.
 - Integrated high-performance responsive local hero video asset (`apps/web/public/videos/hedgehouse-hero.mp4`).
-- All 4 markets display live historical data from the Phase 0 ingestion pipeline with explicit, transparent `COMING ON-CHAIN` indicators.
+- All 4 markets display live historical data from the Phase 0 ingestion pipeline with verified `TESTNET ACTIVE` status badges and on-chain interactions.
 - Zero mock trading, zero invented liquidity, zero fabricated probabilities.
 
 ---

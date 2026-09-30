@@ -114,7 +114,7 @@ export default function MarketsPage() {
 
           <div className="flex items-center gap-2">
             <span className="text-[#565E5A]">Status:</span>
-            {['ALL', 'DEVNET ACTIVE'].map((s) => (
+            {['ALL', 'TESTNET ACTIVE'].map((s) => (
               <button
                 key={s}
                 onClick={() => setSelectedStatus(s)}

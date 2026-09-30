@@ -1,6 +1,6 @@
 export type CountryCode = 'US' | 'GB' | 'SG' | 'AU';
 export type Frequency = 'monthly' | 'quarterly' | 'annual';
-export type MarketStatus = 'COMING ON-CHAIN' | 'AWAITING DEPLOYMENT' | 'SETTLED' | 'ACTIVE' | 'DEVNET ACTIVE';
+export type MarketStatus = 'COMING ON-CHAIN' | 'AWAITING DEPLOYMENT' | 'SETTLED' | 'ACTIVE' | 'TESTNET ACTIVE' | 'DEVNET ACTIVE';
 export type ResolutionCondition = 'TARGET_LT_BASELINE' | 'TARGET_GT_BASELINE' | 'YOY_CHANGE_GT' | 'YOY_CHANGE_LT';
 
 export interface DataPoint {

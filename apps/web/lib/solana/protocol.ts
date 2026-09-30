@@ -7,9 +7,9 @@ import {
 import { Program, AnchorProvider, BN, Idl } from '@coral-xyz/anchor';
 import idlJson from './idl.json';
 
-// Deployed Solana Devnet Configuration
-export const SOLANA_CLUSTER = 'devnet';
-export const DEFAULT_RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+// Deployed Solana Testnet Configuration
+export const SOLANA_CLUSTER = 'testnet';
+export const DEFAULT_RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.testnet.solana.com';
 
 // Verified On-Chain Program and Mint IDs
 export const HEDGEHOUSE_PROGRAM_ID = new PublicKey(
@@ -17,7 +17,7 @@ export const HEDGEHOUSE_PROGRAM_ID = new PublicKey(
 );
 
 export const TEST_USDC_MINT = new PublicKey(
-  process.env.NEXT_PUBLIC_TEST_USDC_MINT || 'C3nYr1kLuTPN3Pvbc4DD8rvzAwVNHovNKyHpVKU4d3dv'
+  process.env.NEXT_PUBLIC_TEST_USDC_MINT || '3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg'
 );
 
 export interface MarketSpec {
@@ -32,7 +32,7 @@ export interface MarketSpec {
   redeemTxSignature?: string;
 }
 
-// Miami FHFA Verified Market Specification
+// Miami FHFA Verified Market Specification (Testnet)
 export const MIAMI_MARKET_SPEC: MarketSpec = {
   id: 'miami-fhfa-2027q2-decline',
   name: 'Miami',
@@ -40,11 +40,13 @@ export const MIAMI_MARKET_SPEC: MarketSpec = {
   vaultPda: new PublicKey(process.env.NEXT_PUBLIC_MIAMI_VAULT_PDA || '7ZBYv5JzC5gzf6Vr7Cw3kSubPguTrZixpv9TuWxqV6pW'),
   yesMint: new PublicKey(process.env.NEXT_PUBLIC_MIAMI_YES_MINT || '26BGWvo49nvPaKP3V5bVcT65TPChPrKCh1M469722mj7'),
   noMint: new PublicKey(process.env.NEXT_PUBLIC_MIAMI_NO_MINT || '9gK6Y2wqSzK8Rh926PWgYdCBP5AwDSiXN7bAqnTKrRH5'),
-  createMarketSignature: 'RxV9CiNGpGi3GcENGaeEneMeFcE9DWaWS9yk45njqWQTLnS6ab2hdtTGtNDLXgLvHPTUPC85FMBWE1JK5v7pDRB'
+  createMarketSignature: '2RM2FESCxBdeN9q3kURdemn6NWVTf3VHQZ7obRikF5nyLB8xaFKNSLVuceoiFZDJrfz5TBAQBDDZgS7tQAvT88ww',
+  depositTxSignature: '3P3RNeACZe9t3mDgDWpQfPkWhvvUdugW2HfaWe2z1UybXBuNT9bRUuuJZHdzwhSGyummanKUomEFwMV73LebzNhc',
+  redeemTxSignature: '25vwgVc1Uej9DgEx6nrckYhHcgJEyA5e4Hui6YTicB26UESkQVEbGJx5uzRFqxUSztqwakmGYSGdo7HTyJqBxik8'
 };
 
-// All 4 Verified On-Chain Solana Devnet Markets
-export const DEVNET_MARKETS_SPEC: Record<string, MarketSpec> = {
+// All 4 Verified On-Chain Solana Testnet Markets
+export const TESTNET_MARKETS_SPEC: Record<string, MarketSpec> = {
   'miami-fhfa-2027q2-decline': MIAMI_MARKET_SPEC,
   'london-ukhpi-202707-growth': {
     id: 'london-ukhpi-202707-growth',
@@ -53,9 +55,9 @@ export const DEVNET_MARKETS_SPEC: Record<string, MarketSpec> = {
     vaultPda: new PublicKey(process.env.NEXT_PUBLIC_LONDON_VAULT_PDA || '2yWhwfTjtCvXs2qqnoVDmiFLnz9tm8JUxtYEa4A61ADk'),
     yesMint: new PublicKey(process.env.NEXT_PUBLIC_LONDON_YES_MINT || 'JB4c242841sqaQpmgCmTteeKcVrHEeNKsJZUu5Rj4E5a'),
     noMint: new PublicKey(process.env.NEXT_PUBLIC_LONDON_NO_MINT || '7mRVELcQ4BfduZuW2JSV5DafRdfpb5BVF3V5ST3tcAex'),
-    createMarketSignature: '4unkUVMryLcNSGgGXmza51BabKSFYrjWE4s7PT6pKe3T7arzmhCbz58NhGEBFWrGJtqFTazZAanirhDQAEJXJ4av',
-    depositTxSignature: '5orisc19ELWzDHd7PQGz3WQWNYaNgkFpBufD6MtXQLSWA3rXtJrJz8aHpEBuvAXgSzagxo5Vb3a4bW73s17eB9QE',
-    redeemTxSignature: '5xAKK7L3TvE425ndnfVGafwtb2SRPApv3D5EzLDFHBfxPXzScWvfdXDiL7x9pBGZcbanziuEosWUdRM8d2wQE7SM'
+    createMarketSignature: '22iA7MEFRiDqUHuJRSWc6w3vfJXiTF3iqYp8jR1m4dFwsRAs3iCGYXcPikT5yXCGhtUstxJTBnG3VzV2agQEBfjg',
+    depositTxSignature: 'CSEAox1gWT86kRFTiDooHZ4ypz68UU5STUayhuu7Gu2qU7mTqobaPzd1mK7ct4uomJvoAkyWhVmf5RnwTkNsHKq',
+    redeemTxSignature: '5btBES2SfjesQBNtYAoHDsHo5YAQmkgoiCeDVMUDPHy21FvBP8UznHCL9K1dYfvXoC1wKEMKbufMkfGoL7mnVKu5'
   },
   'singapore-ura-2027q2-rise-2pct': {
     id: 'singapore-ura-2027q2-rise-2pct',
@@ -64,9 +66,9 @@ export const DEVNET_MARKETS_SPEC: Record<string, MarketSpec> = {
     vaultPda: new PublicKey(process.env.NEXT_PUBLIC_SINGAPORE_VAULT_PDA || 'BD57n28uVz6V6NKE1svQfmpanEpW27LHc9J4mRYBaipN'),
     yesMint: new PublicKey(process.env.NEXT_PUBLIC_SINGAPORE_YES_MINT || '3H5FGH1z6JwWX6NYd29yjhap6LHhkyag8nBB1CBeTckF'),
     noMint: new PublicKey(process.env.NEXT_PUBLIC_SINGAPORE_NO_MINT || 'g3jETujaaa6PPzqJiaCGCyUugQhJ2Pccm1T14pvmDYY'),
-    createMarketSignature: '3VNhzBwXSQgXj2RXDErXiadxtkgoTW4Je1vWG48BkGkY8chn2KHGmyb5Q3p84kTjjLDUSRp228Wjau3LXWzGnWco',
-    depositTxSignature: '5FJcw8SR2N5bP8ge1pA6idXs4Y16iKNXJAvK2aiuT8qCrz3zMYPGFj4PQfP1j6o2hCsbLX1kF1fzJP9ZeHGiU7Lu',
-    redeemTxSignature: 'udZvEwDh7fg46gnjJ9956PUCzyDNugPoVhVDWsS7s2z2pyFmoQranTrbSTmCz5juUv9A2zzihKDbJ4qe9JiPbma'
+    createMarketSignature: '2bp7Z7s6nJStE3ofKhjCUuGAU16PmtZGpZwTbAgfuen7gMRDjHFVVH9NrsqUcbcJmwMK6rTynwUwLQQHh47BRZ3x',
+    depositTxSignature: '2rxMQtCvji2FaLek2RoAqfKQxVsDuz2zNnLovQbHZ2nmFxLMysrWcsJzbjb2Y7arJkXZRJN2mwhEycj2aa7UY2NL',
+    redeemTxSignature: '5gnz2agW3tfmFxMqrnxGtThBBt4ZD39Co9KqsWW8mEs3kmCBd5YySiegeW6ieoeu5v3QZYGCiDrdJsHQ7GWykk4s'
   },
   'sydney-abs-2027q2-exceed-1500k': {
     id: 'sydney-abs-2027q2-exceed-1500k',
@@ -75,18 +77,21 @@ export const DEVNET_MARKETS_SPEC: Record<string, MarketSpec> = {
     vaultPda: new PublicKey(process.env.NEXT_PUBLIC_SYDNEY_VAULT_PDA || 'F4fxizEAaj2Go33vjAidJxQrhzyHNxVtuJnxq2TwD9ed'),
     yesMint: new PublicKey(process.env.NEXT_PUBLIC_SYDNEY_YES_MINT || '4CEtjfijonZsPHD9MSxAhkLZwFVsKyr5EYvN1k76vSUF'),
     noMint: new PublicKey(process.env.NEXT_PUBLIC_SYDNEY_NO_MINT || '7g86E9uMoJs9thZzveriM1YVpm3GCaXfKNejQCauRBNN'),
-    createMarketSignature: '2zqyvyVX2i9YJLwEQnsYvBVg2fhxeW8Sh9ozcq4TzkrKFw98YCQ62GRqCem12sw76L2tbr8skYXEHyhadnV9VLju',
-    depositTxSignature: '3XyLtxuYUwhzPupbVbFUa6j2qonVSrP6cuYxPiGansFF8WWKGWMNy2qbq9X2dcJGMaH9VeR1Lq2xEwLWQbRqgDYs',
-    redeemTxSignature: 'PH2ec9NGzDg3LAMvDP7Z7XtyHpJVe7beydbLX264BdFokTMUJ5fYmUucWNCn63EzvEheEbJmeufQUBjtPYDFyuQ'
+    createMarketSignature: '4DQCi2TxRiZXRkmjecW4bbMeg7dUaqF9xTn2w5huDyEkEanG56UtznxTt9qKeCepSkvXXYLP1iswAPfrq7YTz1tN',
+    depositTxSignature: '2SRnHJBGdKsFUY2djQnuSXKXHXToeknHfvG2bVdjfEcMmZjC9Tmo5VdDDfik1CcajHvgD1UtRZt9swk2ARvQSMQB',
+    redeemTxSignature: 'g1dZstgx6nQSaPTe8QTxvKVWSsGTNaeUVjLDFFCNgjpN6VBnLE1kwH2mPpdmSF4dqoNzsdicEwZnoaT5yuxEeXK'
   }
 };
 
+// Backwards compatibility alias for components
+export const DEVNET_MARKETS_SPEC = TESTNET_MARKETS_SPEC;
+
 export function getExplorerTxUrl(signature: string): string {
-  return `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+  return `https://explorer.solana.com/tx/${signature}?cluster=testnet`;
 }
 
 export function getExplorerAddressUrl(address: string): string {
-  return `https://explorer.solana.com/address/${address}?cluster=devnet`;
+  return `https://explorer.solana.com/address/${address}?cluster=testnet`;
 }
 
 export interface UserBalances {

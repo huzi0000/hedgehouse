@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { 
   fetchUserBalances, 
   UserBalances, 
-  DEVNET_MARKETS_SPEC,
+  TESTNET_MARKETS_SPEC,
   MarketSpec,
   getExplorerAddressUrl 
 } from '../../lib/solana/protocol';
@@ -50,7 +50,7 @@ export default function PortfolioPage() {
       const activePositions: { spec: MarketSpec; balances: UserBalances }[] = [];
       let walletBal: UserBalances | null = null;
 
-      for (const spec of Object.values(DEVNET_MARKETS_SPEC)) {
+      for (const spec of Object.values(TESTNET_MARKETS_SPEC)) {
         const b = await fetchUserBalances(connection, publicKey, spec);
         if (!walletBal) walletBal = b;
         if (b.yesTokens > 0 || b.noTokens > 0) {
@@ -105,7 +105,7 @@ export default function PortfolioPage() {
                 <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
                 <span className="text-xs text-[#8A918E] uppercase tracking-wider">CONNECTED WALLET</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-[#161A18] border border-[#222725] text-[#10B981] font-semibold">
-                  SOLANA DEVNET
+                  SOLANA TESTNET
                 </span>
               </div>
               <div className="flex items-center space-x-2 pt-1">
@@ -145,7 +145,7 @@ export default function PortfolioPage() {
           {/* Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="bg-[#161A18] border border-[#222725] rounded p-4 space-y-1">
-              <span className="text-[11px] text-[#8A918E] uppercase">Devnet SOL</span>
+              <span className="text-[11px] text-[#8A918E] uppercase">Testnet SOL</span>
               <div className="text-lg font-bold text-[#F4F4F0]">
                 {isLoadingBalance ? (
                   <span className="text-xs text-[#8A918E] flex items-center gap-1.5">
@@ -177,7 +177,7 @@ export default function PortfolioPage() {
               <span className="text-[11px] text-[#8A918E] uppercase">Protocol Execution</span>
               <div className="text-xs font-semibold text-[#10B981] flex items-center gap-1.5 pt-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Devnet Live</span>
+                <span>Testnet Live</span>
               </div>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function PortfolioPage() {
                 <h3 className="text-xs font-bold text-[#F4F4F0] uppercase tracking-wider">
                   Active Market Positions ({positions.length})
                 </h3>
-                <span className="text-[11px] text-[#565E5A]">SOLANA DEVNET</span>
+                <span className="text-[11px] text-[#565E5A]">SOLANA TESTNET</span>
               </div>
               {positions.map(({ spec, balances: posBal }) => (
                 <div key={spec.id} className="bg-[#0B0D0C] border border-[#222725] rounded-lg p-4 space-y-4">
@@ -229,7 +229,7 @@ export default function PortfolioPage() {
             </div>
           ) : (
             <div className="p-4 rounded border border-[#222725] bg-[#161A18]/40 text-xs text-[#8A918E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <span>No active positions on Devnet yet. Deposit test collateral in any active market to mint matched pairs.</span>
+              <span>No active positions on Testnet yet. Deposit test collateral in any active market to mint matched pairs.</span>
               <Link
                 href="/markets"
                 className="text-[#10B981] hover:underline flex items-center gap-1 shrink-0"
@@ -249,10 +249,10 @@ export default function PortfolioPage() {
 
           <div className="space-y-2">
             <h2 className="text-lg font-bold text-[#F4F4F0] font-sans">
-              Connect a Solana Devnet wallet to view your HedgeHouse positions.
+              Connect a Solana Testnet wallet to view your HedgeHouse positions.
             </h2>
             <p className="text-xs text-[#8A918E] max-w-md mx-auto leading-relaxed font-sans">
-              HedgeHouse protocol is deployed and testable on Solana Devnet. Connect your wallet to inspect your on-chain SPL tokens and manage collateral positions.
+              HedgeHouse protocol is deployed and testable on Solana Testnet. Connect your wallet to inspect your on-chain SPL tokens and manage collateral positions.
             </p>
           </div>
 
@@ -263,7 +263,7 @@ export default function PortfolioPage() {
               className="w-full sm:w-auto px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold text-xs rounded transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-[#10B981]/15"
             >
               <Wallet className="w-4 h-4" />
-              <span>{connecting ? 'Connecting...' : 'Connect Devnet Wallet'}</span>
+              <span>{connecting ? 'Connecting...' : 'Connect Testnet Wallet'}</span>
             </button>
             <Link
               href="/markets"
@@ -275,7 +275,7 @@ export default function PortfolioPage() {
 
           <div className="pt-4 border-t border-[#1D2220] flex items-center justify-center space-x-2 text-[11px] text-[#565E5A]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-            <span>Network: Solana Devnet • Zero mock balances</span>
+            <span>Network: Solana Testnet • Zero mock balances</span>
           </div>
         </div>
       )}

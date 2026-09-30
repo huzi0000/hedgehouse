@@ -65,10 +65,10 @@ export function Header() {
 
           {/* Right Action Bar */}
           <div className="hidden sm:flex items-center space-x-3">
-            {/* Solana Devnet Target Indicator */}
-            <div className="flex items-center space-x-2 px-2.5 py-1 rounded bg-[#161A18] border border-[#222725] text-[11px] font-mono text-[#8A918E]" title="Network: Solana Devnet (Program Deployed & Verified)">
+            {/* Solana Testnet Target Indicator */}
+            <div className="flex items-center space-x-2 px-2.5 py-1 rounded bg-[#161A18] border border-[#222725] text-[11px] font-mono text-[#8A918E]" title="Network: Solana Testnet (Program Deployed & Verified)">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span className="text-[#F4F4F0] font-medium">SOLANA / DEVNET</span>
+              <span className="text-[#F4F4F0] font-medium">SOLANA / TESTNET</span>
             </div>
 
             {/* Connect / Disconnect Wallet Button */}
@@ -120,7 +120,7 @@ export function Header() {
           <div className="sm:hidden border-b border-[#222725] bg-[#0B0D0C] px-4 pt-3 pb-5 space-y-3 font-mono">
             <div className="flex items-center space-x-2 px-2.5 py-1 rounded bg-[#161A18] border border-[#222725] text-[11px] text-[#8A918E] w-fit">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span className="text-[#F4F4F0] font-medium">SOLANA / DEVNET</span>
+              <span className="text-[#F4F4F0] font-medium">SOLANA / TESTNET</span>
             </div>
             <nav className="flex flex-col space-y-1">
               {navLinks.map((link) => (

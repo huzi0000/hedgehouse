@@ -1,0 +1,60 @@
+{
+  "cluster": "testnet",
+  "programId": "J75RtYgFYkCk3wMbGwGrBSZVc8x3CeHFoKRnLBuoCNvi",
+  "collateralMint": "3pc31EEAFqjrBFJaeCzMHhcSCyvM8TDrSTAU17RD2cWg",
+  "markets": {
+    "miami-fhfa-2027q2-decline": {
+      "name": "Miami",
+      "id": "miami-fhfa-2027q2-decline",
+      "marketPda": "psSrLZqVicFHikn6sD5jZxou2NZGFxK31b1xxP5vDzg",
+      "vaultPda": "7ZBYv5JzC5gzf6Vr7Cw3kSubPguTrZixpv9TuWxqV6pW",
+      "yesMint": "26BGWvo49nvPaKP3V5bVcT65TPChPrKCh1M469722mj7",
+      "noMint": "9gK6Y2wqSzK8Rh926PWgYdCBP5AwDSiXN7bAqnTKrRH5",
+      "createMarketSignature": "2RM2FESCxBdeN9q3kURdemn6NWVTf3VHQZ7obRikF5nyLB8xaFKNSLVuceoiFZDJrfz5TBAQBDDZgS7tQAvT88ww",
+      "depositTxSignature": "3P3RNeACZe9t3mDgDWpQfPkWhvvUdugW2HfaWe2z1UybXBuNT9bRUuuJZHdzwhSGyummanKUomEFwMV73LebzNhc",
+      "redeemTxSignature": "25vwgVc1Uej9DgEx6nrckYhHcgJEyA5e4Hui6YTicB26UESkQVEbGJx5uzRFqxUSztqwakmGYSGdo7HTyJqBxik8",
+      "status": "TESTNET ACTIVE"
+    },
+    "london-ukhpi-202707-growth": {
+      "name": "London",
+      "id": "london-ukhpi-202707-growth",
+      "marketPda": "51cBJsyuBsgBPZJfQMi7NNjZCkuCm3yusbLpVvanCk5d",
+      "vaultPda": "2yWhwfTjtCvXs2qqnoVDmiFLnz9tm8JUxtYEa4A61ADk",
+      "yesMint": "JB4c242841sqaQpmgCmTteeKcVrHEeNKsJZUu5Rj4E5a",
+      "noMint": "7mRVELcQ4BfduZuW2JSV5DafRdfpb5BVF3V5ST3tcAex",
+      "createMarketSignature": "22iA7MEFRiDqUHuJRSWc6w3vfJXiTF3iqYp8jR1m4dFwsRAs3iCGYXcPikT5yXCGhtUstxJTBnG3VzV2agQEBfjg",
+      "depositTxSignature": "CSEAox1gWT86kRFTiDooHZ4ypz68UU5STUayhuu7Gu2qU7mTqobaPzd1mK7ct4uomJvoAkyWhVmf5RnwTkNsHKq",
+      "redeemTxSignature": "5btBES2SfjesQBNtYAoHDsHo5YAQmkgoiCeDVMUDPHy21FvBP8UznHCL9K1dYfvXoC1wKEMKbufMkfGoL7mnVKu5",
+      "status": "TESTNET ACTIVE"
+    },
+    "singapore-ura-2027q2-rise-2pct": {
+      "name": "Singapore",
+      "id": "singapore-ura-2027q2-rise-2pct",
+      "marketPda": "FJ1m18AjKm2UcU4e7vZv62vE3EAgGbgQkQ1BrGjU5kVG",
+      "vaultPda": "BD57n28uVz6V6NKE1svQfmpanEpW27LHc9J4mRYBaipN",
+      "yesMint": "3H5FGH1z6JwWX6NYd29yjhap6LHhkyag8nBB1CBeTckF",
+      "noMint": "g3jETujaaa6PPzqJiaCGCyUugQhJ2Pccm1T14pvmDYY",
+      "createMarketSignature": "2bp7Z7s6nJStE3ofKhjCUuGAU16PmtZGpZwTbAgfuen7gMRDjHFVVH9NrsqUcbcJmwMK6rTynwUwLQQHh47BRZ3x",
+      "depositTxSignature": "2rxMQtCvji2FaLek2RoAqfKQxVsDuz2zNnLovQbHZ2nmFxLMysrWcsJzbjb2Y7arJkXZRJN2mwhEycj2aa7UY2NL",
+      "redeemTxSignature": "5gnz2agW3tfmFxMqrnxGtThBBt4ZD39Co9KqsWW8mEs3kmCBd5YySiegeW6ieoeu5v3QZYGCiDrdJsHQ7GWykk4s",
+      "status": "TESTNET ACTIVE"
+    },
+    "sydney-abs-2027q2-exceed-1500k": {
+      "name": "Sydney",
+      "id": "sydney-abs-2027q2-exceed-1500k",
+      "marketPda": "38RocohSt3rqvJoPuXcUDFMnLx9FF1434BFUaVAUwauy",
+      "vaultPda": "F4fxizEAaj2Go33vjAidJxQrhzyHNxVtuJnxq2TwD9ed",
+      "yesMint": "4CEtjfijonZsPHD9MSxAhkLZwFVsKyr5EYvN1k76vSUF",
+      "noMint": "7g86E9uMoJs9thZzveriM1YVpm3GCaXfKNejQCauRBNN",
+      "createMarketSignature": "4DQCi2TxRiZXRkmjecW4bbMeg7dUaqF9xTn2w5huDyEkEanG56UtznxTt9qKeCepSkvXXYLP1iswAPfrq7YTz1tN",
+      "depositTxSignature": "2SRnHJBGdKsFUY2djQnuSXKXHXToeknHfvG2bVdjfEcMmZjC9Tmo5VdDDfik1CcajHvgD1UtRZt9swk2ARvQSMQB",
+      "redeemTxSignature": "g1dZstgx6nQSaPTe8QTxvKVWSsGTNaeUVjLDFFCNgjpN6VBnLE1kwH2mPpdmSF4dqoNzsdicEwZnoaT5yuxEeXK",
+      "status": "TESTNET ACTIVE"
+    }
+  },
+  "permissionlessVerification": {
+    "testWallet": "Ggudbv5p2P9gqRpptFHo2xc1oriNivktP9RGq2hWLpsY",
+    "depositSignature": "mCsJSDZPMPhTe3BU6nGwf8nrb4YMoK77yMzUmznAuMPPYdb3NgFX8HTtPmXGjTBdqZyGi2hvH9xyqdViUAHXyot",
+    "redeemSignature": "kQDwA8voW5ZKu6Nn1znxcauw9CwEUeXC538LoutpqntrsRRzbKmUai1zvwGCfAzrSrn6UNKEiTFSLDLfxP7nN1s"
+  }
+}
