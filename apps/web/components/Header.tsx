@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, ShieldCheck, Wallet, Menu, X, LogOut, CheckCircle2 } from 'lucide-react';
+import { Activity, ShieldCheck, Wallet, Menu, X, LogOut, CheckCircle2, Coins, RefreshCw, AlertCircle } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { ConnectWalletModal } from './ConnectWalletModal';
@@ -12,8 +12,44 @@ export function Header() {
   const pathname = usePathname();
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClaimingFaucet, setIsClaimingFaucet] = useState(false);
+  const [faucetMsg, setFaucetMsg] = useState<string | null>(null);
+  const [faucetError, setFaucetError] = useState<string | null>(null);
+
   const { publicKey, connected, disconnect, connecting } = useWallet();
   const { setVisible } = useWalletModal();
+
+  const handleClaimFaucet = async () => {
+    if (!connected || !publicKey) {
+      setVisible(true);
+      return;
+    }
+    setIsClaimingFaucet(true);
+    setFaucetMsg(null);
+    setFaucetError(null);
+    try {
+      const res = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: publicKey.toBase58() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to claim testUSDC');
+      }
+      setFaucetMsg('+100 testUSDC Claimed!');
+      // Dispatch global balance refresh event so trading panel and portfolio sync immediately
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('hedgehouse:balance_update'));
+      }
+      setTimeout(() => setFaucetMsg(null), 5000);
+    } catch (e: any) {
+      setFaucetError(e.message || 'Faucet claim failed');
+      setTimeout(() => setFaucetError(null), 5000);
+    } finally {
+      setIsClaimingFaucet(false);
+    }
+  };
 
   const navLinks = [
     { href: '/markets', label: 'Markets' },
@@ -71,6 +107,21 @@ export function Header() {
               <span className="text-[#F4F4F0] font-medium">SOLANA / TESTNET</span>
             </div>
 
+            {/* Get testUSDC Faucet Button */}
+            <button
+              onClick={handleClaimFaucet}
+              disabled={isClaimingFaucet}
+              title="Get 100 testUSDC on Solana Testnet (Demo Collateral • No Real Value)"
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/40 rounded text-xs font-mono text-[#10B981] transition-colors shadow-sm"
+            >
+              {isClaimingFaucet ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Coins className="w-3.5 h-3.5" />
+              )}
+              <span>{isClaimingFaucet ? 'Claiming...' : 'Get testUSDC'}</span>
+            </button>
+
             {/* Connect / Disconnect Wallet Button */}
             {connected && publicKey ? (
               <button
@@ -97,6 +148,14 @@ export function Header() {
           {/* Mobile menu toggle */}
           <div className="flex sm:hidden items-center space-x-2">
             <button
+              onClick={handleClaimFaucet}
+              disabled={isClaimingFaucet}
+              className="p-2 bg-[#10B981]/10 border border-[#10B981]/40 text-[#10B981] rounded text-xs"
+              title="Get testUSDC"
+            >
+              <Coins className={`w-4 h-4 ${isClaimingFaucet ? 'animate-spin' : ''}`} />
+            </button>
+            <button
               onClick={() => (connected ? disconnect() : setVisible(true))}
               className={`p-2 bg-[#161A18] border rounded transition-colors ${
                 connected ? 'border-[#10B981] text-[#10B981]' : 'border-[#222725] text-[#10B981]'
@@ -115,12 +174,40 @@ export function Header() {
           </div>
         </div>
 
+        {/* Global Faucet Toast */}
+        {(faucetMsg || faucetError) && (
+          <div className="w-full bg-[#121514] border-b border-[#222725] px-4 py-2 flex items-center justify-center font-mono text-xs">
+            {faucetMsg ? (
+              <div className="flex items-center space-x-2 text-[#10B981]">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span className="font-semibold">{faucetMsg}</span>
+                <span className="text-[#8A918E] text-[10px] hidden sm:inline">(Solana Testnet • Ready to trade)</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 text-red-400">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{faucetError}</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
           <div className="sm:hidden border-b border-[#222725] bg-[#0B0D0C] px-4 pt-3 pb-5 space-y-3 font-mono">
-            <div className="flex items-center space-x-2 px-2.5 py-1 rounded bg-[#161A18] border border-[#222725] text-[11px] text-[#8A918E] w-fit">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span className="text-[#F4F4F0] font-medium">SOLANA / TESTNET</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 px-2.5 py-1 rounded bg-[#161A18] border border-[#222725] text-[11px] text-[#8A918E]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                <span className="text-[#F4F4F0] font-medium">SOLANA / TESTNET</span>
+              </div>
+              <button
+                onClick={handleClaimFaucet}
+                disabled={isClaimingFaucet}
+                className="px-2.5 py-1 rounded bg-[#10B981]/10 border border-[#10B981]/40 text-[#10B981] text-xs flex items-center gap-1 font-semibold"
+              >
+                <Coins className="w-3.5 h-3.5" />
+                <span>{isClaimingFaucet ? 'Claiming...' : 'Get 100 testUSDC'}</span>
+              </button>
             </div>
             <nav className="flex flex-col space-y-1">
               {navLinks.map((link) => (

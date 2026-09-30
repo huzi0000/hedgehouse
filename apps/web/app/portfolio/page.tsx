@@ -37,6 +37,9 @@ export default function PortfolioPage() {
   const [positions, setPositions] = useState<{ spec: MarketSpec; balances: UserBalances }[]>([]);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isClaimingFaucet, setIsClaimingFaucet] = useState(false);
+  const [faucetSuccess, setFaucetSuccess] = useState<string | null>(null);
+  const [faucetError, setFaucetError] = useState<string | null>(null);
 
   const loadBalances = async () => {
     if (!connected || !publicKey || !connection) {
@@ -67,8 +70,47 @@ export default function PortfolioPage() {
     }
   };
 
+  const handleClaimFaucet = async () => {
+    if (!connected || !publicKey) {
+      setVisible(true);
+      return;
+    }
+    setIsClaimingFaucet(true);
+    setFaucetSuccess(null);
+    setFaucetError(null);
+    try {
+      const res = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: publicKey.toBase58() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to claim testUSDC');
+      }
+      setFaucetSuccess('Received 100 testUSDC on Solana Testnet!');
+      await loadBalances();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('hedgehouse:balance_update'));
+      }
+      setTimeout(() => setFaucetSuccess(null), 6000);
+    } catch (e: any) {
+      setFaucetError(e.message || 'Faucet claim failed');
+      setTimeout(() => setFaucetError(null), 6000);
+    } finally {
+      setIsClaimingFaucet(false);
+    }
+  };
+
   useEffect(() => {
     loadBalances();
+    const handleUpdate = () => {
+      loadBalances();
+    };
+    window.addEventListener('hedgehouse:balance_update', handleUpdate);
+    return () => {
+      window.removeEventListener('hedgehouse:balance_update', handleUpdate);
+    };
   }, [connected, publicKey, connection]);
 
   const copyAddress = () => {
@@ -124,6 +166,15 @@ export default function PortfolioPage() {
 
             <div className="flex items-center space-x-2">
               <button
+                onClick={handleClaimFaucet}
+                disabled={isClaimingFaucet}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#10B981]/10 hover:bg-[#10B981]/20 border border-[#10B981]/40 text-xs text-[#10B981] font-semibold rounded transition-colors"
+                title="Claim 100 HedgeHouse testUSDC (Testnet • No Real Value)"
+              >
+                <Coins className={`w-3.5 h-3.5 ${isClaimingFaucet ? 'animate-spin' : ''}`} />
+                <span>{isClaimingFaucet ? 'Claiming...' : 'Get 100 testUSDC'}</span>
+              </button>
+              <button
                 onClick={loadBalances}
                 disabled={isLoadingBalance}
                 className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#161A18] hover:bg-[#1B201E] border border-[#2B322F] text-xs text-[#8A918E] hover:text-[#F4F4F0] rounded transition-colors"
@@ -141,6 +192,38 @@ export default function PortfolioPage() {
               </button>
             </div>
           </div>
+
+          {/* Faucet Notification Banners */}
+          {faucetSuccess && (
+            <div className="p-3 bg-[#10B981]/15 border border-[#10B981]/30 rounded text-xs text-[#10B981] flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{faucetSuccess}</span>
+            </div>
+          )}
+          {faucetError && (
+            <div className="p-3 bg-red-950/30 border border-red-500/30 rounded text-xs text-red-300 flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0 text-red-400" />
+              <span>{faucetError}</span>
+            </div>
+          )}
+
+          {/* Zero testUSDC Quick-Start Helper */}
+          {balances !== null && balances.testUsdc === 0 && (
+            <div className="p-4 rounded-lg bg-[#10B981]/10 border border-[#10B981]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-[#10B981]">
+                <Coins className="w-4 h-4 shrink-0" />
+                <span>You need HedgeHouse testUSDC to deposit into housing markets. Claim 100 free test collateral on Solana Testnet.</span>
+              </div>
+              <button
+                onClick={handleClaimFaucet}
+                disabled={isClaimingFaucet}
+                className="px-3.5 py-1.5 bg-[#10B981] hover:bg-[#059669] text-[#0B0D0C] font-semibold rounded flex items-center gap-1.5 shrink-0 transition-colors"
+              >
+                <Coins className={`w-3.5 h-3.5 ${isClaimingFaucet ? 'animate-spin' : ''}`} />
+                <span>{isClaimingFaucet ? 'Claiming...' : 'Claim 100 testUSDC'}</span>
+              </button>
+            </div>
+          )}
 
           {/* Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">

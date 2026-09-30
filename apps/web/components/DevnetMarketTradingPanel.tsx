@@ -78,6 +78,9 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
       }
       setFaucetSuccess('Received 100 testUSDC on Solana Testnet!');
       await loadBalances();
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('hedgehouse:balance_update'));
+      }
       setTimeout(() => setFaucetSuccess(null), 6000);
     } catch (e: any) {
       setTxError(e.message || 'Failed to claim testUSDC faucet');
@@ -88,6 +91,13 @@ export function DevnetMarketTradingPanel({ marketId }: DevnetMarketTradingPanelP
 
   useEffect(() => {
     loadBalances();
+    const handleUpdate = () => {
+      loadBalances();
+    };
+    window.addEventListener('hedgehouse:balance_update', handleUpdate);
+    return () => {
+      window.removeEventListener('hedgehouse:balance_update', handleUpdate);
+    };
   }, [loadBalances]);
 
   // If market is not yet initialized on-chain, display placeholder

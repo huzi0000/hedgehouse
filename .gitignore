@@ -10,6 +10,7 @@ test-ledger/
 # Build outputs
 dist/
 .next/
+.vercel/
 
 # Environment and sensitive keys
 .env

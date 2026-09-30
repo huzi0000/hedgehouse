@@ -10,6 +10,7 @@ import {
   getAssociatedTokenAddressSync,
   createAssociatedTokenAccountIdempotentInstruction,
   createTransferInstruction,
+  getAccount,
   TOKEN_PROGRAM_ID
 } from '@solana/spl-token';
 import fs from 'fs';
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
     const faucetKeypair = getFaucetKeypair();
     if (!faucetKeypair) {
       return NextResponse.json(
-        { error: 'Faucet is currently in manual mode. Please contact the administrator or provide TESTNET_FAUCET_KEY.' },
+        { error: 'Faucet service is temporarily unavailable. Please try again shortly.' },
         { status: 503 }
       );
     }
@@ -98,6 +99,20 @@ export async function POST(req: NextRequest) {
     // Faucet ATA and recipient ATA
     const faucetAta = getAssociatedTokenAddressSync(TEST_USDC_MINT, faucetKeypair.publicKey);
     const recipientAta = getAssociatedTokenAddressSync(TEST_USDC_MINT, recipientPubkey);
+
+    // Abuse protection: limit claims if recipient already holds >= 500 testUSDC
+    try {
+      const recipientAccount = await getAccount(connection, recipientAta, 'confirmed');
+      const currentBalance = Number(recipientAccount.amount) / 1_000_000;
+      if (currentBalance >= 500) {
+        return NextResponse.json(
+          { error: `Recipient wallet already holds ${currentBalance.toFixed(0)} testUSDC. Faucet is restricted to balances below 500 testUSDC.` },
+          { status: 400 }
+        );
+      }
+    } catch {
+      // Account does not exist yet or has no balance - allowable for faucet claim
+    }
 
     // 100 testUSDC = 100_000_000 base units (6 decimals)
     const amountUnits = 100_000_000n;
@@ -134,8 +149,13 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error('[Faucet Error]:', err);
+    // Sanitize any internal RPC/system details
+    const rawMsg = err?.message || '';
+    const safeMsg = rawMsg.includes('insufficient funds')
+      ? 'Faucet reserves are currently refilling. Please try again soon.'
+      : 'Failed to process testUSDC faucet claim. Please try again in a few moments.';
     return NextResponse.json(
-      { error: err?.message || 'Failed to process testUSDC faucet request' },
+      { error: safeMsg },
       { status: 500 }
     );
   }
